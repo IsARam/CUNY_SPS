@@ -1,6 +1,6 @@
 ![](https://sps.cuny.edu/sites/all/themes/cuny/assets/img/header_logo.png)
 
-Mike Silva's Masters in Data Science Course Work
+Masters in Data Science Course Work
 
 | Semester    | Course Name | Key Projects |
 | ----------- | ----------- | ------------ |
