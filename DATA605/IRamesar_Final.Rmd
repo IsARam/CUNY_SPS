@@ -1,0 +1,505 @@
+---
+title: "Final Exam - Isabel R."
+date: "December 12,2019"
+output:
+  html_document:
+    toc: true
+    toc_float: yes
+    code_folding: show
+    
+---
+
+```{r warning=FALSE,comment=FALSE, message=FALSE,knitr_init, echo=FALSE, cache=FALSE}
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(tidyr)
+library(httr)
+library(RCurl)
+library(readr)
+library(ggplot2)
+library(corrplot)
+
+
+
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=TRUE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
+#Problem 1
+***
+
+##Random Variables {.tabset .tabset-fade .tabset-pills}
+Using R, generate a random variable X that has 10,000 random uniform numbers from 1 to N, where N can be any number of your choosing greater than or equal to 6.  Then generate a random variable Y that has 10,000 random normal numbers with a mean of \(\mu=\sigma=\frac{N+1}{2}\). 
+
+```{r}
+set.seed(12345)
+N <- 10
+n <- 10000
+mu <- sigma <- (N + 1)/2
+df <- data.frame(X = runif(n, min=1, max=N), 
+                 Y = rnorm(n, mean=mu, sd=sigma))
+```
+
+```{r}
+summary(df$X)
+summary (df$Y)
+```
+
+Random Uniform Numbers - runif
+Random Normal Numbers - rnorm
+
+##Probability {.tabset .tabset-fade .tabset-pills}
+'Calculate as a minimum the below probabilities a through c.  Assume the small letter "x" is estimated as the median of the X variable, and the small letter "y" is estimated as the 1st quartile of the Y variable.  Interpret the meaning of all probabilities.'
+
+```{r}
+x = quantile(df$X,.50)
+x
+y = quantile(df$Y,.25)
+y
+```
+
+a.   
+P(X>x | X>y)	
+
+P(A|B) means the probability of A occurring, `given` that B has occurred. In this case, the probablity of A (5.54) `being greater` than B (1.85) is 0.55.
+
+```{r}
+pba_a = df %>%
+  filter(X > x,
+         X > y) %>%
+  nrow() / n
+
+pb_a = df %>%
+  filter(X > y) %>%
+  nrow() / n
+
+Qa = pba_a / pb_a
+Qa
+```
+
+b.  
+P(X>x, Y>y)		
+
+In this case, the probablity of A (5.54) `being greater` than B (1.85) is 0.38.
+```{r}
+Qb = df %>%
+  filter(X > x, Y>y) %>%
+  nrow() / n
+
+Qb
+```
+
+c.  
+P(X<x | X>y)	
+
+P(A|B) means the probability of A occurring, `given` that B has occurred. In this case, the probablity of A (0.41) being `less than` B (.91) is 0.45.
+```{r}
+pba_c = df %>%
+  filter(X < x,
+         X > y) %>%
+  nrow() / n
+
+pb_c = df %>%
+  filter(X > y) %>%
+  nrow() / n
+
+Qc = pba_c / pb_c
+Qc
+```
+
+##Evaluating Probabilities - Marginal and Joint {.tabset .tabset-fade .tabset-pills}
+Investigate whether P(X>x and Y>y)=P(X>x)P(Y>y) by building a table and evaluating the marginal and joint probabilities.
+```{r}
+# Probability - Joint 
+inv = df %>%
+  mutate(A = ifelse(X > x, " X > x", " X < x"),
+         B = ifelse(Y > y, " Y > y", " Y < y")) %>%
+  group_by(A, B) %>%
+  summarise(count = n()) %>%
+  mutate(probability = count / n)
+
+# Probability - Marginal
+inv = inv %>%
+  ungroup() %>%
+  group_by(A) %>%
+  summarize(count = sum(count),
+            probability = sum(probability)) %>%
+  mutate(B = "Total") %>%
+  bind_rows(inv)
+
+inv = inv %>%
+  ungroup() %>%
+  group_by(B) %>%
+  summarize(count = sum(count),
+            probability = sum(probability)) %>%
+  mutate(A = "Total") %>%
+  bind_rows(inv)
+
+# Table
+inv %>%
+  select(-count) %>%
+  spread(A, probability) %>%
+  rename(" " = B) %>%
+  kable() %>%
+  kable_styling()
+```
+
+
+##Independence {.tabset .tabset-fade .tabset-pills}
+Check to see if independence holds by using Fisher's Exact Test and the Chi Square Test.  What is the difference between the two? Which is most appropriate?
+
+Fisher is a statistical significance test used in the analysis of contingency tables, used in practice when sample sizes are small. Within the odds ratio, the confidence interval contains one therefore we fail to reject the null hypothesis of independence.
+
+Chi Square is a statistical significance test where the sampling distribution of the test statistic is a chi-squared distribution when the null hypothesis is true.This approach is appropriate because the sampling method was simple random sampling.We reject the null hypothesis when the P-value is less than the significance level.
+
+Fisher's Exact Test is used when there is a small sample set and the Chi Square Test is used when sample set is large. I would say that the Chi Square test is most appropriate, in this case. 
+
+```{r}
+#Fisher 
+
+count_data = inv %>%
+  filter(A != "Total",
+         B != "Total") %>%
+  select(-probability) %>%
+  spread(A, count) %>%
+  as.data.frame()
+
+row.names(count_data) = count_data$B
+
+count_data = count_data %>%
+  select(-B) %>%
+  as.matrix() 
+
+
+fisher.test(count_data)
+
+#Chi 
+chisq.test(count_data)
+```
+
+#Problem 2
+***
+
+You are to register for Kaggle.com (free) and compete in the House Prices: Advanced Regression Techniques competition.  https://www.kaggle.com/c/house-prices-advanced-regression-techniques.
+
+Report your Kaggle.com user name and score.My Kaggle.com user name is `isaram` : https://www.kaggle.com/isaram and my score is 0.56288.
+
+I took the data provided (Test.csv) and created a Linear Regression for the following variables, Sale Price (Dependent), Overall Quality, Ground Living Square Feet, Garage Car Capacity , and Garage Area (Independent). Using the intercepts from Linear Regression summary helped to create the Multiple Linear Regression model.  I then plotted each variable against Sale Price. I loaded the test data set and created a column using the Multiple Linear Regression equation.  I combined ID and Sale Price to prepare the data for submission by selecting the required columns for contest entry.
+
+Youtube Video: https://youtu.be/xxahRg7G99s
+
+
+```{r}
+# Data Load
+kdata = read.csv(text=getURL("https://raw.githubusercontent.com/IsARam/DATA605/master/train%5B1%5D.csv?_sm_au_=iVV6f56RMnTkt5jMkRvMGK3JRp2ft"),header = TRUE) %>%
+  # Outlier Removal
+  filter(GrLivArea < 4000)
+  
+  
+data = function(df){
+  df %>%
+    # Replace N/A's
+    mutate(BedroomAbvGr = replace_na(BedroomAbvGr, 0),
+           BsmtFullBath = replace_na(BsmtFullBath, 0),
+           BsmtHalfBath = replace_na(BsmtHalfBath, 0),
+           BsmtUnfSF = replace_na(BsmtUnfSF, 0),
+          EnclosedPorch = replace_na(EnclosedPorch, 0),
+          Fireplaces = replace_na(Fireplaces, 0),
+          GarageArea = replace_na(GarageArea, 0),
+          GarageCars = replace_na(GarageCars, 0),
+          HalfBath = replace_na(HalfBath, 0),
+          KitchenAbvGr = replace_na(KitchenAbvGr, 0),
+          LotFrontage = replace_na(LotFrontage, 0),
+          OpenPorchSF = replace_na(OpenPorchSF, 0),
+          PoolArea = replace_na(PoolArea, 0),
+          ScreenPorch = replace_na(ScreenPorch, 0),
+          TotRmsAbvGrd = replace_na(TotRmsAbvGrd, 0),
+          WoodDeckSF = replace_na(WoodDeckSF, 0)) 
+}
+
+kdata= data(kdata)
+print(kdata)
+```
+
+
+##Descriptive and Inferential Statistics {.tabset .tabset-fade .tabset-pills}
+
+
+###Descriptive Statistics
+
+Provide univariate descriptive statistics and appropriate plots for the training data set. 
+
+An independent variable is the variable that is changed or controlled to test the effects on the dependent variable. A dependent variable is the variable being tested and measured.For this exercise, I will choose the following variables:
+
+`Independent`
+LotArea
+OverallQual
+
+`Dependent`
+SalePrice
+
+Lot Area
+```{r}
+summary(kdata$LotArea)
+hist(kdata$LotArea, xlab = 'Lot Area', main = 'Histogram of Lot Area',col="red")
+```
+Overall Quality
+```{r}
+summary(kdata$OverallQual)
+hist(kdata$OverallQual, xlab = 'Overall Quality', main = 'Histogram of Overall Quality', col="purple")
+```
+Sale Price
+```{r}
+summary(kdata$SalePrice)
+hist(kdata$SalePrice, xlab = 'Lot Area', main = 'Histogram of Sale Price', col = 'grey')
+```
+
+
+###Scatterplot
+
+Provide a scatterplot matrix for at least two of the independent variables and the dependent variable.
+
+```{r}
+#Lot Area vs. Sale Price
+ggplot(kdata, aes(x =LotArea,y=SalePrice)) + geom_point() + theme(axis.text.x = element_text(angle = 60, hjust = 1)) 
+```
+
+```{r}
+#Overall Quality vs. Sale Price
+
+
+
+ggplot(kdata, aes(x =OverallQual, y=SalePrice)) + geom_point(aes(color = factor(OverallQual))) + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+
+###Correlation Matrix
+
+Derive a correlation matrix for any three quantitative variables in the dataset.
+
+
+```{r}
+correlationmatrix = kdata %>%
+  select(LotArea, OverallQual, SalePrice) %>%
+  cor() %>%
+  as.matrix()
+correlationmatrix
+```
+
+
+###Test Hypothesis
+
+Test the hypotheses that the correlations between each pairwise set of variables is 0 and provide an 80% confidence interval.  Discuss the meaning of your analysis.  Would you be worried about familywise error? Why or why not?
+
+```{r}
+cor.test(kdata$LotArea, kdata$SalePrice, conf.level = 0.80)
+```
+
+In the above, the correlation value (0.27) indicates there is little to no correlation between Lot Area and Sale Price.
+
+```{r}
+cor.test(kdata$OverallQual, kdata$SalePrice, conf.level = 0.80)
+```
+
+In the above, the correlation value (.80) indicates there is correlation between Overall Quality and Sale Price. The p-value is less than the significance level 0.05. It can be conclude that variables are significantly correlated.
+
+In statistics, family-wise error rate is the probability of making one or more false discoveries, or type I errors when performing multiple hypotheses tests.I think in general if one were to run enough hypthesis test it is highly likely to get at least one significant result in which one would reject the null hypothesis. 
+
+
+##Linear Algebra and Correlation {.tabset .tabset-fade .tabset-pills}
+Invert your correlation matrix from above. (This is known as the precision matrix and contains variance inflation factors on the diagonal.) Multiply the correlation matrix by the precision matrix, and then multiply the precision matrix by the correlation matrix. Conduct LU decomposition on the matrix.  
+
+###Precision Matrix
+
+```{r}
+precisionmatrix = solve(correlationmatrix); precisionmatrix
+```
+
+###Correlation Matrix by Precision Matrix
+```{r}
+mult = round(correlationmatrix %*% precisionmatrix); mult
+```
+
+Multiplying the correlation matrix by the precision matrix, results in the identity matrix.
+
+###Precision Matrix by Correlation Matrix
+
+```{r}
+mult2 = round(precisionmatrix %*% correlationmatrix); mult2
+```
+
+Multiplying the precision matrix by the correlation matrix, results in the identity matrix.
+
+###LU Decomposition
+
+```{r}
+#install_github("https://github.com/cran/matrixcalc/blob/master/R/lu.decomposition.R")
+library(matrixcalc)
+decomp = lu.decomposition(correlationmatrix);decomp
+correlationmatrix
+```
+
+LU decomposition, and it is also a key step when inverting a matrix or computing the determinant of a matrix. The LU decomposition should yield the correlation matrix after multiplying the two components. As indicated above, this holds true.
+
+
+##Calculus-Based Probability & Statistics {.tabset .tabset-fade .tabset-pills}
+
+###Variable Skewed To The Right
+
+Many times, it makes sense to fit a closed form distribution to data.  Select a variable in the Kaggle.com training dataset that is skewed to the right, shift it so that the minimum value is absolutely above zero if necessary.  
+
+```{r}
+rs = min(kdata$GrLivArea) ; rs
+```
+
+###Fit Exponential Probability
+
+Then load the MASS package and run fitdistr to fit an exponential probability density function.  (See https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/fitdistr.html ). 
+
+```{r, comment=FALSE}
+library(MASS)
+epb = fitdistr(kdata$GrLivArea, "exponential");epb
+```
+
+###Optimal Value
+
+Find the optimal value of $\lambda$ for this distribution, and then take 1000 samples from this exponential distribution using this value (e.g., rexp(1000, $\lambda$). 
+
+```{r}
+lambda = epb$estimate;lambda
+opval = rexp(1000,lambda);opval
+```
+
+###Histogram
+
+Plot a histogram and compare it with a histogram of your original variable.
+
+```{r}
+par(mfrow=c(1,2))
+hist(opval, breaks=50, xlim=c(0, 6000) , main = "Exponential - GrLivArea", col="green")
+hist (kdata$GrLivArea, breaks=50, main = "Original - GrLivArea", col="blue")
+```
+
+###Percentiles
+Using the exponential pdf, find the 5th and 95th percentiles using the cumulative distribution function (CDF).
+```{r}
+qexp(.05,rate = lambda)
+qexp(.95,rate = lambda)
+```
+
+###Confidence Interval
+
+Also generate a 95% confidence interval from the empirical data, assuming normality.  
+
+```{r comment=FALSE}
+library("Rmisc")
+
+CI(na.exclude(kdata$GrLivArea), ci=.95)
+```
+
+
+###Empirical Percentile 
+
+Finally, provide the empirical 5th percentile and 95th percentile of the data.  
+
+```{r}
+quantile(kdata$GrLivArea, .05)
+quantile(kdata$GrLivArea, .95)
+```
+
+
+##Modeling {.tabset .tabset-fade .tabset-pills}
+
+###Linear Regression
+
+Build some type of multiple regression  model and submit your model to the competition board.  Provide your complete model summary and results with analysis.
+
+```{r}
+
+model = kdata[, which(sapply(kdata, function(x) sum(is.na(x))) == 0)]
+fit = lm(kdata$SalePrice ~ kdata$OverallQual + kdata$GrLivArea + kdata$GarageCars + kdata$GarageArea, data=kdata)
+summary(fit)
+```
+
+###Multiple Linear Regression
+
+```{r}
+par(mfrow=c(2,2))
+X1 = kdata$OverallQual
+X2 = kdata$GrLivArea
+X3 = kdata$GarageCars
+X4 = kdata$GarageArea
+Y = kdata$SalePrice
+
+plot(X1,Y, col="#00FF00", main="OverallQual", ylab="Sale Price")
+abline(lm(Y~X1), col="blue", lwd=3) 
+
+plot(X2,Y, col="#C00000", main="GrLivArea", ylab="Sale Price")
+abline(lm(Y~X2), col="blue", lwd=3) 
+
+plot(X3,Y, col="#aa4371", main="GarageCars", ylab="Sale Price")
+abline(lm(Y~X3), col="blue", lwd=3) 
+
+plot(X4,Y, col="#37004d", main="GarageArea", ylab="Sale Price")
+abline(lm(Y~X4), col="blue", lwd=3) 
+```
+
+```{r}
+kdatatest = read.csv(text=getURL("https://raw.githubusercontent.com/IsARam/DATA605/master/test%5B1%5D.csv?_sm_au_=iVV1fQtQ75TPVL5NkRvMGK3JRp2ft"),header = TRUE) %>%
+  # Outlier Removal
+  filter(GrLivArea < 4000)
+  
+  
+data = function(df){
+  df %>%
+    # Replace N/A's
+    mutate(BedroomAbvGr = replace_na(BedroomAbvGr, 0),
+           BsmtFullBath = replace_na(BsmtFullBath, 0),
+           BsmtHalfBath = replace_na(BsmtHalfBath, 0),
+           BsmtUnfSF = replace_na(BsmtUnfSF, 0),
+          EnclosedPorch = replace_na(EnclosedPorch, 0),
+          Fireplaces = replace_na(Fireplaces, 0),
+          GarageArea = replace_na(GarageArea, 0),
+          GarageCars = replace_na(GarageCars, 0),
+          HalfBath = replace_na(HalfBath, 0),
+          KitchenAbvGr = replace_na(KitchenAbvGr, 0),
+          LotFrontage = replace_na(LotFrontage, 0),
+          OpenPorchSF = replace_na(OpenPorchSF, 0),
+          PoolArea = replace_na(PoolArea, 0),
+          ScreenPorch = replace_na(ScreenPorch, 0),
+          TotRmsAbvGrd = replace_na(TotRmsAbvGrd, 0),
+          WoodDeckSF = replace_na(WoodDeckSF, 0)) 
+}
+
+kdatatest = data(kdatatest)
+print(kdatatest)
+```
+
+```{r}
+SalePrice = ((26988.854*df$OverallQual) + (49.573*df$GrLivArea) +  (11317.522*df$GarageCars) + (41.478*df$GarageArea) -98436.050)
+kdatatest = kdatatest[,c("Id","OverallQual","GrLivArea","GarageCars","GarageArea")]
+(head(kdatatest))
+```
+
+```{r}
+ksubmission = cbind(kdatatest$Id,kdata$SalePrice)
+colnames(ksubmission) = c("Id","Sale Price")
+ksubmission[ksubmission<0] = median(SalePrice)
+ksubmission = as.data.frame (ksubmission[1:1458,])
+head(ksubmission)
+```
+
+```{r}
+write.csv(ksubmission, file = "KaggleSubmissionIsARam.csv",quote = FALSE, row.names = FALSE)
+```
+

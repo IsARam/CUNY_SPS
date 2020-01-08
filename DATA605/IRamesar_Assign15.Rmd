@@ -1,0 +1,128 @@
+---
+title: "Homework - Week 15"
+author: "Isabel R."
+date: "December 5, 2019"
+output: pdf_document
+---
+
+# 1
+Find the equation of the regression line for the given points.  Round any final values to the nearest hundredth, if necessary.( 5.6, 8.8 ), ( 6.3, 12.4 ), ( 7, 14.8 ), ( 7.7, 18.2 ), ( 8.4, 20.8 )
+```{r}
+x <- c(5.6, 6.3, 7, 7.7, 8.4)
+y <- c(8.8, 12.4, 14.8, 18.2, 20.8)
+regression1 <- lm(y~x)
+summary(regression1)
+```
+
+The linear modesl is as follows: Y=-14.8+4.26X
+
+#2
+Find all local maxima, local minima, and saddle points for the function given below.  Write your answer(s) in the form (x, y, z).  Separate multiple points with a comma.f (x, y) = 24x- 6xy\(^2\)- 8y\(^3\)
+
+\(f_{x}=24 - 6y^2\)
+
+\(f_{y}= - 12xy -24y^2\)
+
+\(f_{xx}= 0\)
+
+\(f_{yy}= - 12x -48y\)
+
+\(f_{xy}= - 12y\)
+
+when \(f_{x} = 0 ,\ f_{y}=0\) Critical points:
+
+\(f_{x}=24 - 6y^2 = 0\)
+
+\(y^2 = 4\)
+
+\(y = 2 \ or -2\)
+
+\(f_{y}= - 12xy -24y^2 = 0\)
+
+\(- xy -2y^2 = 0\)
+
+when $y = 2,  x = -2y ,  x = -4 $
+
+when $y = -2,  x = -2y ,  x = 4 $
+
+So we have critical point (4, -2) and (-4, 2).
+
+Using the Second Derivative Test:
+
+$D = D(a,b) = f_{xx}(a,b) f_{yy}(a,b) - f_{xy}(a,b)^2 $
+
+saddle point: D > 0 is max or D < 0 is min
+
+\(f_{xx}= 0, \ f_{yy}= - 12x -48y, \ f_{xy}= - 12y\)
+
+\(D = (0)*(- 12x -48y)-(- 12y)^2 = -144y^2\)
+
+at (4, -2)
+
+\(D = -576 < 0\)
+
+at (-4, 2)
+
+\(D = -576 < 0\)
+
+(4, -2) and (-4, 2) are the respective saddle point.
+
+
+#3
+A grocery store sells two brands of a product, the "house" brand and a "name" brand.  The manager estimates that if she sells the "house" brand for x dollars and the "name" brand for y dollars, she will be able to sell 81-21x + 17y units of the "house" brand and 40 + 11x??? 23y units of the "name" brand.3. 
+
+Step 1. Find the revenue function R (x, y).
+Step 2. What is the revenue if she sells the "house" brand for $2.30 and the "name" brand for $4.10?
+
+```{r}
+2.3*(81-21*(2.3)+17*(4.1)) + 4.1*(40+11*(2.3)-23*(4.1))
+```
+
+
+#4
+A company has a plant in Los Angeles and a plant in Denver.  The firm is committed to produce a total of 96 units of a product each week.  The total weekly cost is given by C(x, y) = 16x2 + 16y2 + 7x + 25y + 700,  where x is the number of units produced in Los Angeles and y is the number of units produced in Denver.  How many units should be produced in each plant to minimize the total weekly cost?
+
+$ x + y = 96$
+
+$ y = 96-x $
+
+When $ y = 96-x $ in equation:
+
+\(C(x,y) = \frac{1}{6} x^2 + \frac{1}{6} y^2 + 7x + 25y + 700\)
+
+$ = x^2 + (96 - x)^2 + 7x + 25(96-x) + 700$
+
+$ = x^2 + 1536 - 32x + + 7x + 2400 - 25x + 700$
+
+$ = x^2 - 50x + 4636$
+
+Minima critical point : \(C'(x) = 0\)
+
+\(C'(x) = \frac{2}{3} x - 50 = 0\)
+
+$ x = 75$
+
+when $ x = 75$ in $ x + y = 96$:
+
+$ y = 21 $
+
+Minimize the cost should be 75 units in LA, 21 unit in Denver.
+
+#5
+Evaluate the double integral on the given region
+\(\int \int_R (e^{8x + 3y}) dA; R: 2 \leq x \leq 4 \ { and } \ 2 \leq y \leq 4\)
+
+$ {y = 2}^{y = 4} {x = 2}^{x = 4} (e^{8x + 3y}) dx  dy $
+
+\(= \int_{2}^{4} \int_{2}^{4} (e^{8x}e^{3y}) \ dx \ dy\)
+
+\(= \int_{2}^{4} \int_{2}^{4} (e^{8x}e^{3y}) \ dx \ dy\)
+
+\(=\int_{2}^{4} \frac{1}{8}e^{3y+32}-\frac{1}{8}e^{3y+16} \ dy\)
+
+\(=\int_{2}^{4} \frac{1}{8}\left(e^{16}-1\right)e^{3y+16} \ dy\)
+
+\(=\frac{e^{44}-e^{28}}{24}-\frac{e^{38}-e^{22}}{24}\)
+
+\(=\frac{1}{24}\left(e^{22}-e^{28}-e^{38}+e^{44}\right)\)
+
