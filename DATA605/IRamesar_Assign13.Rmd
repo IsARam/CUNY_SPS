@@ -1,0 +1,122 @@
+---
+title: "Homework - Week 13"
+author: "Isabel R."
+date: "November 22, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Question 1
+
+\[ \int4e^{-7x}dx \]
+
+##Answer
+Let \(u=-7x\) therefore \(dx=-\frac{1}{7}dz\)
+
+\[ 4\int e^z \frac{-1}{7}dz=\\ \frac{-4}{7}\int e^zdz=\\ -\frac{4}{7}e^z+C=\\ -\frac{4}{7}e^{-7x}+C \]
+
+
+#Question 2
+
+Biologists are treating a pond contaminated with bacteria. The level of contamination is changing at a rate of \(\frac{dN}{dt}=-\frac{3150}{t^4}-220\) bacteria per cubic centimeter per day, where \(t\) is the number of days since treatment began. Find a function \(N(t)\) to estimate the level of contamination if the level after 1 day was 6530 bacteria per cubic centimeter.
+
+##Answer
+\[ \int\frac{dN}{dt}=\int\frac{-3150}{t^4}-220dt=\\ -\frac{12600}{t^3}-220t+C \]
+
+Since \(N(1)=6530\) this can be used to find \(C\).
+
+\[ N(1)=6530=-\frac{12600}{1^3}-220(1)+C\\ C=6290\\ N(t)=-\frac{12600}{t^3}-220t+6290 \]
+
+#Question 3
+Find the total area of the red rectangles in the figure below, where the equation of the line is f(x) = 2x+9.
+
+##Answer
+\[ \int_{4.5}^{8.5} 2x-9 dx \]
+
+\[ x^2-9x dx |_{4.5}^{8.5} \]
+
+
+```{r}
+((8.5^2)-(9*8.5))-((4.5^2)-(9*4.5))
+```
+
+#Question 4
+
+Find the area of the region bounded by the graphs of the given equations, y = x2- 2x- 2,  y = x + 2.
+
+##Answer
+
+\[ x+2=x^2-2x-2\\ =x^2-3x-4\\ =(x-4)(x+1) \]
+
+So the intersections occur at \(x=-1\) and \(x=4\). The area enclosed by these points has \(y=x+2\) above the other equations. So to find the area:
+
+\[x^2 - 2x -2 = x+2\]
+
+\[x^2 -3x -4 = 0\]
+
+\[x = 1, x=-4\]
+
+\[ \int_{-1}^{4} x+2 dx - \int_{-1}^{4} x^2-2x-2 dx \]
+
+\[ (\dfrac{x^2}{2})|_{-1}^{4} - (\dfrac{x^3}{3}-x^2-2x)|_{-1}^{4} \]
+
+
+```{r}
+
+(8-.5)-((((4*4*4)/3) - 16-8) - (-.3333 -1 + 2))
+```
+
+
+#Question 5
+
+A beauty supply store expects to sell 110 flat irons during the next year. It costs $3.75 to store one flat iron for one year. There is a fixed cost of $8.25 for each order. Find the lot size and the number of orders per year that will minimize inventory costs.
+
+##Answer
+
+```{r}
+3.75 * ((110)*(1) - 110) + 8.75*(1)
+
+```
+
+#Question 6
+
+\(int ln(9x) x^6 dx\)
+
+##Answer
+
+\(\int u*dv/dx*dx\) = u*v - \(\int v*du/dx*dx\)
+
+u = ln(9x)
+
+du/dx
+
+u = 9x d/du[ln u * d/dx(9x)] = 1/u* d/dx (9X) = 1/9x * 9
+du/dx = 1/x
+
+dv/dx = \(x^6\)
+v = \(x^7\)/7
+
+= ln (9x) * \(x^7\)/7 - \(\int x^7/7 * 1/x* dx\) = \(x^7\)*(ln (9x)/7 - 1)
+
+#Question 7
+
+Determine whether f (x) is a probability density function on the interval 1, e6.  If not, determine the value of the definite integral.
+
+##Answer
+ \[f(x)= \dfrac{1}{6x}\]
+
+To tell if a function is a probability density function, the integral of the pdf must be equal to 1.
+
+\[\int_{1}^{e^6} \dfrac{1}{6x}\]
+
+\[-\dfrac{1}{6}\int_{1}^{e^6} \dfrac{1}{x}\]
+
+\[-\dfrac{1}{6}ln(x)|_{1}^{e^6}\]
+
+```{r}
+((-1/(6))*log(1) - ((-1/(6)*log(exp(6)))))
+```
+
