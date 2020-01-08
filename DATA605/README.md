@@ -38,12 +38,12 @@ This course covered basic differential and integral calculus from the viewpoint 
 
 ### Calculus
 
-[Assignment 13](https://github.com/isaram/CUNY_SPS/blob/master/DATA605/Assign13.Rmd)
+[Assignment 13](https://github.com/isaram/CUNY_SPS/blob/master/DATA605/IRamesar_Assign13.Rmd)
 
-[Assignment 14](https://github.com/isaram/CUNY_SPS/blob/master/DATA605/Assign14.Rmd)
+[Assignment 14](https://github.com/isaram/CUNY_SPS/blob/master/DATA605/IRamesar_Assign14.Rmd)
 
-[Assignment 15](https://github.com/isaram/CUNY_SPS/blob/master/DATA605/Assign15.Rmd)
+[Assignment 15](https://github.com/isaram/CUNY_SPS/blob/master/DATA605/IRamesar_Assign15.Rmd)
 
 ### Final
 
-[Final](https://github.com/isaram/CUNY_SPS/blob/master/DATA605/final.Rmd)
+[Final](https://github.com/isaram/CUNY_SPS/blob/master/DATA605/IRamesar_final.Rmd)
