@@ -1,0 +1,68 @@
+---
+title: "IRamesar_Assign8"
+author: "Isabel R."
+date: "October 16, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Problem 11 (Page 303)
+A company buys 100 lightbulbs, each of which has an exponential lifetime of 1,000 hours. What is the expected time for the first of these bulbs to burn out?  <br/>
+
+$X_i\sim$ Exp$(\lambda_i)$ then $\min X_i\sim$ Exp$(\sum\lambda_i)$  <br/>
+Proof: (http://www.math.wm.edu/~leemis/chart/UDR/PDFs/ExponentialM.pdf)
+ 
+$E[X_i]=\frac{1}{\lambda_i}=1000$, so $\lambda_i=\frac{1}{1000}$.   <br/> 
+ 
+Then $\min X_i \sim$ Exp$(\lambda)$, with $\lambda=\lambda_1+...+\lambda_{100}=\frac{100}{1000}=\frac{1}{10}$.  <br/>  
+ 
+Lastly, $E[\min X_i]=\frac{1}{\lambda}=\frac{1}{1/10}=10$  <br/>
+
+#Problem 14 (Page 303)
+Assume that X1 and X2 are independent random variables, each having an exponential density with parameter $\lambda$. Show that Z = X1 - X2 has density fZ(z) = (1/2) $\lambda$ * e - ^($\lambda$|z|) .
+
+First compute the cumulative distribution function (CDF):
+
+$\(P_r\left\{Z \leq z \right\}\)\$
+
+Use the converlution formula, we can write:   <br/>
+
+$\([\begin{equation} \int\limits_{-\infty}^\infty f_{X_1}(x_1)f_{X_2}(x_2)\; \mathrm{d}x = \int\limits_{-\infty}^\infty f_{X_1}(x_1)f_{-X_2}(z-x_1)\; \mathrm{d}x \end{equation}\])\$  
+
+<br/> for discrete random variable, P(-X=-1) = P(X=1), same is true for probability density function (PDF):
+
+$(\(f_{-X_2}(z-x_1) = f_{X_2}(x_1-z)\)\$
+
+Taken together, we have
+$\([\begin{equation} f_Z(z) = (1/2)\lambda e^{-\lambda|z|} \end{equation}\])\$
+
+#Problem 1 (Pages 320-321)
+Let X be a continuous random variable with mean ?? = 10 and variance $\sigma$ ^ 2 = 100/3. Using Chebyshev's Inequality, find an upper bound for the following probabilities.
+
+(a) P(|X - 10| >= 2)
+```{r}
+k <- 2/sqrt(100/3)
+1/k^2
+```
+
+(b) P(|X - 10| >= 5)
+```{r}
+k <- 5/sqrt(100/3)
+1/k^2
+```
+
+(c) P(|X - 10| >= 9)
+```{r}
+k <- 9/sqrt(100/3)
+1/k^2
+```
+
+(d) P(|X - 10| >= 20)
+```{r}
+k <- 20/sqrt(100/3)
+1/k^2
+```
+

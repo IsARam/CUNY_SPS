@@ -1,0 +1,43 @@
+---
+title: "Week 11 - Assignment"
+author: "Isabel R."
+date: "November 8, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Assignment
+
+Using the "cars" dataset in R, build a linear model for stopping distance as a function of speed and replicate the analysis of your textbook chapter 3 (visualization, quality evaluation of the model, and residual analysis.)
+
+#Data
+
+```{r}
+summary(cars)
+```
+
+# Visualization
+```{r}
+plot(cars$speed, cars$dist, xlab='Speed', ylab='Distance', 
+     main='Distance vs. Speed')
+```
+
+```{r}
+model =lm(formula = dist ~ speed, data = cars)
+summary(model)
+plot(model)
+```
+
+# Conclusion
+Speed is estimated to lead to a 3.9 unit increase (Standard Deviation) in distance. This estimate is statistically significant and two variables are nearly normal and appears to be linear. There appears to be a multivariate normality with no multicollinearity. These two variables are independent. The residuals are equal across the regression line.
+
+
+
+
+
+
+

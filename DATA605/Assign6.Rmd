@@ -1,0 +1,150 @@
+---
+title: "Homework - Week 6"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1
+
+A box contains 54 red marbles, 9 white marbles, and 75 blue marbles.  If a marble is randomly selected from the box, what is the probability that it is red or blue?
+```{r}
+round((54+75)/(54+9+75),4)
+```
+
+# Question 2
+You are going to play mini golf.  A ball machine that contains 19 green golf balls, 20 red golf balls, 24 blue golf balls, and 17 yellow golf balls, randomly gives you your ball.  What is the probability that you end up with a red golf ball? 
+```{r}
+round(20/(19+20+24+17),4)
+```
+
+# Question 3
+A pizza delivery company classifies its customers by gender and location of residence.  The research department has gathered data from a random sample of 1399 customers. What is the probability that a customer is not male or does not live with parents? 
+```{r}
+female = (228+79+252+97+72)
+nlvp = (1399-(215+252))
+fnlvp = 728-252
+round(((female+nlvp-fnlvp)/1399),4)
+```
+
+# Question 4
+Determine if the following events are independent.Going to the gym.  Losing weight. 
+
+`These events are dependent.`  
+
+# Question 5
+A veggie wrap at City Subs is composed of 3 different vegetables and 3 different condiments wrapped up in a tortilla.  If there are 8 vegetables, 7 condiments, and 3 types of tortilla available, how many different veggie wraps can be made?
+
+```{r}
+veg=choose(8, 3)
+condiment=choose(7, 3)
+tortilla=choose(3, 1)
+veg*condiment*tortilla
+```
+
+# Question 6
+Determine if the following events are independent.Jeff runs out of gas on the way to work.  Liz watches the evening news.  
+
+`These events are independent.`  
+
+# Question 7
+The newly elected president needs to decide the remaining 8 spots available in the cabinet he/she is appointing.  If there are 14 eligible candidates for these positions (where rank matters), how many different ways can the members of the cabinet be appointed?
+```{r}
+14*13*12*11*10*9*8*7
+```
+
+# Question 8
+A bag contains 9 red, 4 orange, and 9 green jellybeans.  What is the probability of reaching into the bag and randomly withdrawing 4 jellybeans such that the number of red ones is 0, the number of orange ones is 1, and the number of green ones is 3? 
+```{r}
+red = choose(9, 0)
+orange = choose(4, 1)
+green = choose(9, 3)
+possiblecomb=red*orange*green
+all = choose((9 + 4 + 9), 4)
+round(possiblecomb/all, 4)
+```
+
+# Question 9
+Evaluate the following expression.11!/7!
+```{r}
+factorial(11)/factorial(7)
+```
+
+# Question 10
+Describe the complement of the given event.67% of subscribers to a fitness magazine are over the age of 34.
+```{r}
+1-.67
+```
+
+`33% of subscribers to a fitness magazine are under the age of 34.`
+
+# Question 11
+If you throw exactly three heads in four tosses of a coin you win $97.  If not, you pay me $30.11. <b />
+Step 1. Find the expected value of the proposition.  Round your answer to two decimal places.<b />
+```{r}
+win11= pbinom(3,4,.5) - pbinom(2,4,.5)
+lose11=1-win11
+Ans11= (97*win11)-(30*lose11)
+Ans11
+```
+
+Step 2. If you played this game 559 times how much would you expect to win or lose? (Losses must be entered as negative.)
+
+```{r}
+559*Ans11
+```
+
+# Question 12
+Flip a coin 9 times.  If you get 4 tails or less, I will pay you $23.  Otherwise you pay me $26.12.<br/>
+Step 1. Find the expected value of the proposition.  Round your answer to two decimal places.<br/>
+
+```{r}
+win12= pbinom(4,9,.5)
+lose12=1-win12
+Ans12= (23*win12)-(26.12*lose12)
+Ans12
+```
+
+Step 2. If you played this game 994 times how much would you expect to win or lose? (Losses must be entered as negative.)
+
+```{r}
+994*Ans12
+```
+
+# Question 13
+The sensitivity and specificity of the polygraph has been a subject of study and debate for years.  A 2001 study of the use of polygraph for screening purposes suggested that the probability of detecting a liar was .59 (sensitivity) and that the probability of detecting a "truth teller" was .90 (specificity).   We estimate that about 20% of individuals selected for the screening polygraph will lie. 
+
+```{r}
+q13df = data.frame(c(11.8,8.2, 20), c(8, 72, 80), c(19.8,80.2, 100))
+names(q13df) = c("Lie", "Truth", "Total")
+row.names(q13df) = c("Positive", "Negative", "Total")
+q13df
+```
+
+a.  What is the probability that an individual is actually a liar given that the polygraph detected him/her as such?  (Show me the table or the formulaic solution or both.)<br/>
+```{r}
+lp = 0.118
+tp = 0.198
+
+plp = lp/tp
+print(round(plp,4))
+```
+b.  What is the probability that an individual is actually a truth-teller given that the polygraph detected him/her as such?   (Show me the table or the formulaic solution or both.)<br/>
+```{r}
+tn = 0.72
+totaln = 0.802
+
+ptn = tn/totaln
+print(round(ptn,4))
+```
+c.  What is the probability that a randomly selected individual is either a liar or was identified as a liar by the polygraph?  Be sure to write the probability statement.<br/>
+```{r}
+pl = 0.2
+tp = 0.198
+lp = 0.118
+plil = pl+ tp - lp
+print(plil)
+```
+

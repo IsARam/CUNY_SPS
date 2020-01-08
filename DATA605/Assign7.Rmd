@@ -1,0 +1,80 @@
+---
+title: "Assign7"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Problem 1
+Let X1, X2, . . . , Xn be n mutually independent random variables, each of which is uniformly distributed on the integers from 1 to k. Let Y denote the minimum of the Xi's. Find the distribution of Y.
+
+"Cumulative Distribution Functions (CDF) simply tells us the odds of measuring any value up to and including x. Probability Density Functions (PDF)  is simply the derivative of a CDF. Thus a PDF is also a function of a random variable, x, and its magnitude will be some indication of the relative likelihood of measuring a particular value." (https://www.che.utah.edu/~tony/course/material/Statistics/18_rv_pdf_cdf.php)
+
+***
+The cumulative density function of the probability distribution function is:
+
+cdf = (x-1)/(k-1)
+
+Since every x variable n the problem are mutually independent,the probability can be multiplied and applied together.
+
+P(Y<=y) = 1-P(X1> y, ..., Xn > y)
+cdf= [1-P(X1> y, ..., Xn > y)]n
+cdf= 1-[1-P(X1> y, ..., Xn > y)]n
+cdf= 1[1-x-1k-1]n
+
+#Problem 2
+ Your organization owns a copier (future lawyers, etc.) or MRI (future doctors).  This machine has a manufacturer's expected lifetime of 10 years.  This means that we expect one failure every ten years.  (Include the probability statements and R Code for each part.).
+ 
+##a
+What is the probability that the machine will fail after 8 years?.  Provide also the expected value and standard deviation.  Model as a geometric.  (Hint: the probability is equivalent to not failing during the first 8 years..) 
+```{r}
+expecteda = 10
+
+probabilitya = 1/expecteda
+probabilityfaila = (1- probabilitya)^(8) * probabilitya
+probabilityfaila
+
+sda = (1-probabilitya)/(probabilitya^2)
+sda
+```
+
+The probability that the machine will fail after 8 years is 0.04304672.The standard deviation is 90.
+
+##b
+What is the probability that the machine will fail after 8 years?.  Provide also the expected value and standard deviation.  Model as an exponential.
+```{r}
+probabilityb = exp(-8/10)
+probabilityb
+```
+
+The probability that the machine will fail after 8 years is 0.449329. The standard deviation is equal to mean, which is 10.
+
+##c
+What is the probability that the machine will fail after 8 years?.  Provide also the expected value and standard deviation.  Model as a binomial.  (Hint:  0 success in 8 years).  
+```{r}
+probabilityc = choose(9, 8) * 0.5^8 * (1 - 0.5)^1
+probabilityc
+
+expectedc = 9*0.5
+expectedc
+
+sdc = sqrt(9 * 0.5 * (1-0.5))
+sdc
+```
+
+The probability that the machine will fail after 8 years is 0.0175. The expected value is 4.5, and the standard deviation is 1.5.
+
+##d
+What is the probability that the machine will fail after 8 years?.  Provide also the expected value and standard deviation.  Model as a Poisson.
+```{r}
+ppois(8, lambda = 10, lower.tail = FALSE)
+
+expectedd = 10
+
+sdd = sqrt(10)
+sdd
+```
+
+The probability that the machine will fail after 8 years is 0.6672. The expected value is 10, and the standard deviation is 3.16.

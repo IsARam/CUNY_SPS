@@ -1,0 +1,140 @@
+---
+title: "Homework4"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem Set 1
+
+##Matrix A
+```{r}
+A <- matrix(c(1,-1,2,0,3,4), nrow = 2, ncol = 3)
+A
+```
+
+##X
+
+###X = A$A^{T}$ 
+```{r}
+X = A%*%t(A)
+X
+```
+### X Eigenvalues
+```{r}
+eigen(X)$values
+```
+
+### X Eigenvectors
+```{r}
+eigen(X)$vectors
+```
+
+---
+
+##Y
+###Y = $A^{T}$A
+```{r}
+Y= t(A)%*%A
+Y
+```
+
+###Y Eigenvalues
+```{r}
+eigen(Y)$values
+```
+
+### Y Eigenvectors
+```{r}
+eigen(Y)$vectors
+```
+
+(https://www.r-bloggers.com/singular-value-decomposition-svd-tutorial-using-examples-in-r/)
+
+##Singular Values 
+
+The singular values of A can be computed by the built-n function `svd` function. 
+
+```{r}
+singular<-svd(A)$d
+singular
+```
+
+
+##Left Singular Vector
+```{r}
+Left <- svd(A)$u
+Left
+```
+
+##Right Singular Vector
+```{r}
+Right <- svd(A)$v
+Right
+```
+
+##Examination of Singular Vector 
+
+###Method 1
+Upon examining the two sets of singular vectors, the columns of the right singular vector is the eigenvector of Y.
+
+```{r}
+Right
+eigen(Y)$vectors[,1:2]
+```
+
+###Method 2
+The examination can also be done by using an `all.equal` function. `all.equal` is a utility to compare R objects x and y testing 'near equality'. (https://www.rdocumentation.org/packages/base/versions/3.6.1/topics/all.equal). The eigenvalues of X and Y should be the same as the square of the Singular Value of A.
+
+```{r}
+all.equal(eigen(X)$values,(singular^2))
+all.equal(eigen(Y)$values[1:2],(singular^2))
+```
+
+#Problem Set 2
+
+##Matrix C
+```{r}
+C <- matrix(c(1,0,4,3,-1,2,4,2,1), nrow = 3, ncol = 3)
+```
+
+
+##Inverse of a Matrix function
+```{r}
+myinverse<-function(A){
+  n<-ncol(A)
+  if(n==nrow(A)){
+      #Square Test.
+    if(det(A)!=0){
+      #Determinant is not zero.
+      cofactors<- matrix(0:0,n,n)
+      for(i in 1:n){
+        for(j in 1:n){
+           # For each rows, loop through Column and determine corresponding sub-matrix M_ij, 
+           # Find determinant and store in appropriate C[i,j] position.
+          detVal<-det(A[-i,-j])
+          cofactors[i,j]<- detVal*(-1^(i+j))
+        }
+      }
+      #Inverse calculation co-factor matrix transposition divided by the determinant.
+      return(t(cofactors)/det(A))
+    }else{
+      stop('Determinant is zero.')
+    }
+  }else{
+    stop('Non-square matrix.')
+  }
+}
+
+myinverse(C)
+```
+
+##Inverse of a Matrix function Test
+```{r}
+solve(C)
+```
+
+
+

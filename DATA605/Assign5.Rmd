@@ -1,0 +1,91 @@
+---
+title: "Homework5"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+A listing of all the values the random variable can assume with their corresponding probabilities make a probability distribution. (https://people.richland.edu/james/lecture/m170/ch06-prb.html). <br/>
+Below I use the `runif` dunction to generate random deviates. (https://www.rdocumentation.org/packages/stats/versions/3.6.1/topics/Uniform)
+
+```{r}
+B <- runif(10000, min = 0, max =1)
+C <- runif(10000, min = 0, max =1)
+```
+
+Find the probability that:
+
+##A 
+B+C<1/2
+
+```{r}
+j = 0
+for(i in 1:length(B)){
+  if(B[i]+C[i] < .5){
+    j = j+1
+  }
+}
+print(j/length(B))
+```
+In this case, the overall probability is (.25 X .5) = .125.  
+
+##B
+BC<1/2
+
+```{r}
+j = 0
+for(i in 1:length(B)){
+  if(B[i]*C[i] < .5){
+    j = j+1
+  }
+}
+print(j/length(B))
+```
+
+In this problem, the overall probability is 1-(.5^3)= .854.
+
+##C
+|B-C|<1/2
+
+```{r}
+j = 0
+for(i in 1:length(B)){
+  if(abs(B[i]-C[i]) < .5){
+    j = j+1
+  }
+}
+print(j/length(B))
+```
+In this problem, the overal probability is 1-2*((.5)^3) = .75. 
+
+##D
+max {B,C}<1/2
+
+```{r}
+j = 0
+for(i in 1:length(B)){
+  if(max(c(B[i],C[i])) < .5){
+    j = j+1
+  }
+}
+print(j/length(B))
+```
+
+In this problem, there is a .75 (1-(.5^2)) chance the minimum of B or C is .5.
+
+##E
+min {B,C}<1/2
+
+```{r}
+j = 0
+for(i in 1:length(B)){
+  if(min(c(B[i],C[i])) < .5){
+    j = j+1
+  }
+}
+print(j/length(B))
+```
+
+This problem, is the compliment to problem D, which is 1-.25=.75.

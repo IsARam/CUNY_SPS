@@ -1,0 +1,111 @@
+---
+title: "Homework2"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem Set 1
+
+## Question 1
+
+I created values to represent the matrix and the transposed matrix.
+
+https://www.basic-mathematics.com/multiply-matrices.html
+https://math.hecker.org/2011/05/15/linear-algebra-and-its-applications-exercise-1-6-14/
+```{r}
+A = matrix(c(1,1,2,4),nrow = 2, ncol= 2)
+ATranspose=t(A)
+A
+ATranspose
+```
+
+Here I multipled matrices A and $A^{T}$. https://stat.ethz.ch/R-manual/R-devel/library/base/html/matmult.html
+https://www.basic-mathematics.com/multiply-matrices.html
+
+A$A^{T}$ 
+```{r}
+A%*%ATranspose
+```
+$A^{T}$A
+```{r}
+ATranspose%*%A
+```
+
+This proves that A$A^{T}$ $\neq$ to $A^{T}$A.
+
+## Question 2
+
+In cases where A is symmertic (A = $A^{T}$) https://en.wikipedia.org/wiki/Symmetric_matrix, A$A^{T}$ = to $A^{T}$A.
+
+```{r}
+A2 = matrix(c(2,4,4,1),nrow = 2, ncol= 2)
+A2Transpose = t(A2)
+A2
+A2Transpose
+```
+
+Here I multipled matrices A and $A^{T}$. 
+
+A$A^{T}$ 
+```{r}
+A2%*%A2Transpose
+```
+$A^{T}$A
+```{r}
+A2Transpose%*%A2
+```
+---
+
+# Problem Set 2
+
+A = LU where U is the matrix that we get at the end of the elimination procedure, it is the Upper
+Triangular matrix. L is a Lower Triangular matrix and you'll see that the entries of L are
+the multipliers that we applied to subtract one row from the other. (Lecture Notes Pg. 3)
+
+https://www.rdocumentation.org/packages/matrixcalc/versions/1.0-3/topics/lu.decomposition
+https://www.youtube.com/watch?v=UlWcofkUDDU
+
+```{r}
+factorizeLU <- function(A) {
+  # Examines if A is square.
+  if (dim(A)[1]!=dim(A)[2]) {
+    return(NA)
+  }
+  
+  U <- A
+  n <- dim(A)[1]
+  L <- diag(n)
+  
+  # If the dimension is one, then U=A and L=[1].
+  if (n==1) {
+    return(list(L,U))
+  }
+  
+  # Loops through the lower triangle and finds multiplier for each position and adds it to L.
+  for(i in 2:n) {
+    for(j in 1:(i-1)) {
+      multiplier <- -U[i,j] / U[j,j]
+      U[i, ] <- multiplier * U[j, ] + U[i, ]
+      L[i,j] <- -multiplier
+    }
+  }
+  return(list(L,U))
+}
+```
+
+```{r}
+A <- matrix(c(2,4,4,1), nrow=2, byrow=TRUE)
+LU <- factorizeLU(A)
+L<-LU[[1]]  
+U<-LU[[2]]
+
+A
+L
+U
+A==L %*% U
+```
+
+

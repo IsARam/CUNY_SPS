@@ -1,0 +1,80 @@
+---
+title: "IRamesar_Assign9"
+author: "Isabel R."
+date: "October 21, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1
+
+The price of one share of stock in the Pilsdorff Beer Company (see Exercise 8.2.12) is given by Yn on the nth day of the year. Finn observes that the differences Xn = Yn+1 ??? Yn appear to be independent random variables with a common distribution having mean ?? = 0 and variance $\sigma$^2 = 1/4. If Y1 = 100, estimate the probability that Y365 is
+(a) $\ge$ 100
+```{r}
+pnorm(100-100,0,sqrt(91.25))
+```
+
+(b) $\ge$ 110
+```{r}
+pnorm(110-100,0,sqrt(91.25), lower.tail = F)
+```
+
+(c) $\ge$ 
+```{r}
+pnorm(120-100,0,sqrt(91.25), lower.tail = F)
+```
+
+# Problem 2
+Calculate the expected value and variance of the binomial distribution using the moment generating function.
+
+\(\binom{n}{k}p^k(1 - p)^{n-k}\)
+
+Therefore, the moment generating function for the binomial distribution is:
+
+\(g(t) = \sum\limits_{j=1}^{n}\binom{n}{k}p^k(1 - p)^{n-k}e^{tj}\) \(= (1 - p + pe^t)^n\)
+
+Calculating the first derivative:
+
+\(g'(t) = npe^t(pe^t - p + 1)^{n-1}\)
+
+Evaluating for t = 0 to determine the mean \(\mu_1\):
+
+\(g'(0) = n \times p \times e^0(p \times e^0 - p + 1)^{n-1} = np\)
+
+Calculating the second derivative:
+
+\(g''(t) = npe^t(pe^t - p + 1)^{n-2}(npe^t - p + 1)\)
+
+Evaluating for t = 0 to determine \(\mu_2\):
+
+\(g''(0) = npe^0(pe^0 - p + 1)^{n-2}(npe^0 - p + 1) = np(np + 1 - p)\)
+
+The variance is \(\mu_2 - \mu_1^2 = np(np + 1 - p)np = n^2p^2(np + 1 - p)\)
+
+# Problem 3
+Calculate the expected value and variance of the exponential distribution using the moment generating function.
+
+\(\lambda e^{-\lambda x}\)
+
+Therefore, the moment generating function for the binomial distribution is:
+
+\(g(t) = \frac{\lambda}{\lambda - t}\) for \(t < \lambda\)
+
+Calculating the first derivative:
+
+\(g'(t) = \frac{\lambda}{(\lambda - t)^2}\)
+
+Evaluating for t = 0 to determine the mean \(\mu_1\):
+
+\(g'(0) = \frac{1}{\lambda}\)
+
+Calculating the second derivative:
+
+\(g''(t) = \frac{2 \lambda}{(\lambda-t)^3}\)
+
+Evaluating for t = 0 to determine \(\mu_2\):
+
+\(g''(0) = \frac{2}{\lambda^2}\)
