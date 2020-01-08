@@ -1,0 +1,124 @@
+---
+title: "Assignment 5"
+date: "February 27, 2019"
+output:
+    rmdformats::readthedown:
+      self_contained: true
+      thumbnails: true
+      lightbox: true
+      gallery: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Create CSV
+```{r}
+csv <- rbind(c(NA, NA, "Los Angeles", "Phoenix", "San Diego", "San Francisco", "Seattle"),
+             c("ALASKA", "On Time", 497, 221, 212, 503, 1841),
+             c(NA, "Delayed", 62, 12, 20, 102, 305),
+             c("AM WEST", "On Time", 694, 4840, 383, 320, 201),
+             c(NA, "Delayed", 117, 415, 65, 129, 61))
+
+write.table(csv, file = "arrivaltimes.csv", sep = ",", col.names=F, row.names=F)
+```
+
+
+#Read CSV into R
+```{r}
+originalarrival<-read.csv("https://raw.githubusercontent.com/DATA607/master/arrivaltimes.csv?_sm_au_=iVVSSF6Sk3kVrtvj")
+originalarrival
+```
+
+#Transformation Of Data {.tabset .tabset-fade}
+
+##Load Libraries
+```{r}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+```
+
+##Tidy Data
+
+I created another table and modified it by using the following formulas:
+The `mutate` formula (dplyr) adds new variables and preserves existing. In the case of the above this formula was used to duplicate the first column.
+The `coalesce` (dplyr) formula finds the first non-missing value at each position.In the case of the above this was used to combine the first and second columns into one.
+The `gather` formuala (tidyr) takes multiple columns and collapses into key-value pairs, duplicating all other columns as needed.
+The `select` formula (dplyr) keeps only the variables you mention.
+The `arrange` formula (dplyr) sort a variable in descending order.
+
+```{r}
+arrival<- originalarrival %>%
+mutate(Airlines1 = NA., Airlines2=lag(NA.)) %>% 
+mutate(Airline = coalesce(Airlines1,Airlines2), Status = NA..1)  %>%
+gather("Destination", "Flights", 3:7) %>% 
+select(Airline:Flights) %>% 
+arrange(Airline, desc(Status), Destination); arrival
+```
+
+
+#Analysis {.tabset .tabset-fade}
+
+##Filter Status
+
+When analyzing the comparison of delays for the two airlines I created a new table that  filtered Delayed status and summarized Delayed flights.
+
+The `group_by` formula (dplyr) takes an existing tbl and converts it into a grouped tbl where operations are performed "by group". 
+The `summarise` formula (dplyr) is typically used on grouped data created by group_by().
+
+```{r}
+FlightsDelayed <- arrival %>% group_by(Airline,Destination) %>% filter(Status == 'Delayed') %>%summarise(Delayed = sum(Flights))
+FlightsDelayed
+```
+The `group_by` (dplyr) formula takes an existing tbl and converts it into a grouped tbl where operations are performed "by group". 
+
+##Calculate Total Flights
+
+When analyzing the comparison of delays for the two airlines I created a new table that summarized the total flights. 
+
+The `group_by` formula (dplyr) takes an existing tbl and converts it into a grouped tbl where operations are performed "by group". 
+The `summarise` formula (dplyr) is typically used on grouped data created by group_by().
+
+```{r}
+TotalFlights <- arrival %>% group_by(Airline,Destination) %>% summarise(Total = sum(Flights))
+TotalFlights
+```
+
+##Combine and Mutate 
+
+I created a new table which combined the tables above. 
+
+The `cbind` formula (base) take a sequence of vector, matrix or data-frame arguments and combine by columns or rows, respectively.
+The `mutate` formula (dplyr) adds new variables and preserves existing. In the case of the above this formula was used to duplicate the first column.
+
+```{r}
+DelaySummary<- cbind(FlightsDelayed, Total=TotalFlights$Total)
+DelaySummary<- DelaySummary %>% mutate(DelayPercentage = Delayed/Total)
+DelaySummary
+```
+
+##High Level Summary
+
+I created a high level summary without Destination.
+
+```{r}
+FlightsDelayedHL <- arrival %>% group_by(Airline) %>% filter(Status == 'Delayed') %>%summarise(Delayed = sum(Flights))
+TotalFlightsHL <- arrival %>% group_by(Airline) %>% summarise(Total = sum(Flights))
+DelaySummaryHL<-cbind(FlightsDelayedHL,Total=TotalFlightsHL$Total)
+DelaySummaryHL<- DelaySummaryHL %>% mutate(HLDelayPercentage = DelaySummaryHL$Delayed/DelaySummaryHL$Total)
+DelaySummaryHL
+```
+
+Alaska Airlines has a higher delay percentage over AM West however Alaska Airlines had fewer Total Flights.
+
+#Visuals
+
+I used `geom_point` as the visual.
+
+The point geom is used to create scatterplots. The scatterplot is most useful for displaying the relationship between two continuous variables. It can be used to compare one continuous and one categorical variable, or two categorical variables which I thought was fitting in this case.
+```{r}
+ggplot(DelaySummary, aes(Destination, Delayed)) + geom_point(aes(color=Airline),size=8,alpha=1/2)
+```
+

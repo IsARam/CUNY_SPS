@@ -1,0 +1,153 @@
+---
+title: "Homework - Chapter 1"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#1.8 
+(a) What does each row of the data matrix represent?
+UK resident who participated.
+(b) How many participants were included in the survey?
+1691
+(c) Indicate whether each variable in the study is numerical or categorical. If numerical, identify as continuous or discrete. If categorical, indicate if the variable is ordinal.
+Sex - categorical nominal
+Age - numerical discrete 
+Marital - categorical nominal
+Gross income - categorical ordinal
+Smoke - categorical nominal
+Amt weekends - numerical discrete 
+AmyWeekdays - numerical discrete
+
+#1.10
+(a) Identify the population of interest and the sample in this study.
+Population = Children between the ages of 5 and 15. The
+Sample size = 160
+
+(b) Comment on whether or not the results of the study can be generalized to the population, and if the findings of the study can be used to establish causal relationships.
+This is an observational study and therefore no causal relationships can be made.
+
+#1.28
+(a) Based on this study, can we conclude that smoking causes dementia later in life? Explain your reasoning.
+No, we cannot conclude that smoking causes dementia later in life because the data was only from health plan members and also it is an observational study and can therefore cannot be used to establish causal relationships.
+
+(b) A friend of yours who read the article says, "The study shows that sleep disorders lead tobullying in school children." Is this statement justified? If not, how best can you describe theconclusion that can be drawn from this study?
+No, the statement is not justified, there is no random sampling and observational studies cannot be used to imply causation.
+
+#1.36
+(a) What type of study is this? 
+Prospective experimental study.
+
+(b) What are the treatment and control groups in this study? 
+Treatment group - Exercise two times per week 
+Control Group - Does not exercise
+
+(c) Does this study make use of blocking? If so, what is the blocking variable?
+Yes, there is blocking. The age groups are the blocking variable.
+
+(d) Does this study make use of blinding?
+No, it does not make use of blinding.
+
+(e) Comment on whether or not the results of the study can be used to establish a causal relationship between exercise and mental health, and indicate whether or not the conclusions can be generalized to the population at large.
+Yes, conclusions can be generalized to the population since this is a randomized experiment.
+
+(f) Suppose you are given the task of determining if this proposed study should get funding. Would you have any reservations about the study proposal?
+I believe this study should get funding and I believe the study should take into account socioeconomic status as well as ethnicity.
+
+#1.48
+Create a box plot of the distribution of these scores. The five number summary provided below may be useful.
+```{r}
+scores <- c(57, 66, 69, 71, 72, 73, 74, 77, 78, 78, 79, 79, 81, 81, 82, 83, 83, 88, 89, 94)
+
+boxplot(scores)
+```
+
+#1.50
+Describe the distribution in the histograms below and match them tothe box plots.
+(a) Figure 2 Symmetrical and Unimal
+
+(b) Figure 3 Multimodal
+
+(c) Figure 1 Right Skewed
+
+#1.56
+(a) Distribution - Right Skewed, Best Representation observation - Median
+
+(b) Distribution - Symmetrical, Best Representation observation - Any method would be acceptable as this is Symmetrical.
+
+(c) Distribution - Right Skewed, Best Representation observation - IQR or Median
+
+(d) Distribution - Right Skewed, Best Representation observation - IQR or Median
+
+
+#1.70
+```{r}
+library(openintro)
+```
+
+```{r}
+data(heartTr)
+head(heartTr)
+```
+
+```{r}
+dim(heartTr)
+```
+
+```{r}
+summary(heartTr)
+```
+
+```{r}
+unique(heartTr$transplant)
+```
+
+```{r eval=FALSE}
+ggplot(data = heartTr) + geom_boxplot(mapping = aes(x=transplant,y=survtime))
+```
+
+```{r}
+mosaicplot(data = heartTr, ~transplant+survived)
+```
+
+(a) According to the mosaic plot, it seems trasnplant patients have a better chance of survival.
+
+(b) The box plot shows the the treatment group survived longer than the control group.
+
+(c)
+```{r}
+data(heartTr)
+table(heartTr$survived)
+```
+
+```{r}
+table(heartTr$transplant)
+```
+
+```{r}
+table(heartTr$survived, heartTr$transplant)
+```
+
+```{r}
+prop.table(table(heartTr$survived, heartTr$transplant))
+```
+
+(d)
+i.
+Claims are if treatment is effective or control.
+
+ii. 
+28 cards - Alive
+75 cards - Dead
+69 - Group size
+34 - Group size
+0 - Distribution center
+.23 -Proportions
+
+iii. 
+The simulation results suggest that the transplant program is effective and more likely to live, and that the result is unlikely to have occured just due to chance.

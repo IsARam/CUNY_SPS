@@ -1,0 +1,51 @@
+---
+title: "Assignment 2"
+date: "February 1, 2019"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Install Packages
+
+
+```{r eval=FALSE}
+install.packages("RODBC")
+```
+
+
+#Add Source to ODBC
+![MySQL Connector_ODBC Data Source Configuration](C:/Users/Documents/MySQL Connector_ODBC Data Source Configuration.png)
+
+# Load Library
+```{r}
+library(RODBC)
+```
+
+# Connect ODBC
+```{r}
+connect<-odbcConnect("Local instance MySQL80")
+```
+
+# Create SQL Query
+
+```{r}
+my.data<-sqlQuery(connect,"SELECT * from assignment2.movies")
+```
+
+# Display SQL Table
+
+```{r}
+my.data
+```
+
+# Rating Table 
+```{r}
+table(my.data)
+```
+

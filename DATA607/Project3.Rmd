@@ -1,0 +1,141 @@
+---
+title: "Project 3 - Data Science Skills"
+date: "March 24, 2019"
+output: 
+  ioslides_presentation:
+      widescreen: true
+
+---
+
+##Introduction
+
+We were asked to use data to answer the question, "Which are the most valued data science skills?"
+
+As a team we used `Github` and `Slack` as our method of team collaboration. Within Github, we *forked*, *edited* and *commited*. Then we utilized the *blame* view to review line-by-line revision history.
+![As a team we](2019-03-20 09_16_30-Document1 - Word.png)
+
+#Data
+
+##Data Source
+
+We obtained data from [Kaggle.com](https://www.kaggle.com/discdiver/the-most-in-demand-skills-for-data-scientists/) 
+
+Jeff Hale obtained data from online job listing sites such as LinkedIn, Indeed, SimplyHired and Monster in the US in October 2018 using Python. When observing this data he noted how many times a keyword was mentioned by post throughout the different platforms.
+
+##Libraries
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(tm)
+library(wordcloud)
+library(memoise)
+library(SnowballC)
+library(RColorBrewer)
+library(RCurl)
+library(XML)
+library(treemap)
+```
+
+##Data Load
+
+We read data from the CSV file which was uploaded to Github.
+```{r}
+url <- "https://raw.githubusercontent.com/DATA607Project3/master/DataSkills.csv"
+data_skills <-read.csv(url, stringsAsFactors = FALSE)
+kable(data_skills) %>% kable_styling(bootstrap_options = "striped", font_size = 7)
+```
+
+#Tidy and Wrangle
+
+##Data Structure
+First we looked at the structure of the dataset.
+```{r}
+str(data_skills)
+```
+##Data Types
+We removed the commas in the numbers and changed the data types from character to numeric for the following columns: LinkedIn, Indeed, SimplyHired and Monster.
+```{r}
+data_skills$LinkedIn <- str_replace_all(data_skills$LinkedIn, ",", "") %>% as.numeric()
+data_skills$Indeed <- str_replace_all(data_skills$Indeed, ",", "") %>% as.numeric()
+data_skills$SimplyHired <- str_replace_all(data_skills$SimplyHired, ",", "") %>% as.numeric()
+data_skills$Monster <- str_replace_all(data_skills$Monster, ",", "") %>% as.numeric()
+str(data_skills)
+```
+##Data Subset
+We got rid of the rows we didn't need by subsetting and eliminating those in which LinkedIn was NA; we also excluded the "Total" row which was not a data science skill.
+```{r}
+data_skills_subset <- subset(data_skills, !is.na(LinkedIn)) %>% subset(!Keyword == "Total")
+kable(data_skills_subset) %>% kable_styling(bootstrap_options = "striped", font_size = 7)
+```
+##Data Mutate
+We mutuated the data frame to generate a new column `Total_Mention`.
+`Total_Mention` was calculated by adding all numbers from the 4 jobboards for each skill.
+```{r}
+data_skills_2 <- data_skills_subset %>% mutate(Total_Mention = LinkedIn + Indeed + SimplyHired + Monster) 
+kable(data_skills_2) %>% kable_styling(bootstrap_options = "striped", font_size = 7)
+```
+##Data Mutate
+We added rows "AI" and "Artificial Intelligence" then subtracted the overlapping skills. We assigned the values to "AI + Artificial Intelligence".
+```{r}
+data_skills_2[18,2:6] <- data_skills_2[16,2:6] + data_skills_2[17,2:6] - data_skills_2[18,2:6]
+```
+We added rows "NLP" and "Natural Language Processing" then subtracted the overlapping skills. We assigned the values to "NLP + Natural Language Processing".
+```{r}
+data_skills_2[21,2:6] <- data_skills_2[19,2:6] + data_skills_2[20,2:6] - data_skills_2[21,2:6]
+```
+##Data Mutate
+We then removed the unnecessary rows "AI", "Artificial Intelligence", "NLP" and "Natural Language Processing".
+```{r}
+data_skills_tidy <- data_skills_2[- c(16, 17, 19, 20), ]
+```
+We mutuated the data frame to generate another new column `Percentage`.
+Percentage was calculated by dividing the total number of each skill by the overall total of all skills.
+```{r}
+data_skills_tidy <- data_skills_tidy %>% mutate(Percentage = Total_Mention/sum(Total_Mention))
+```
+
+#Analysis and Visualization
+
+##Bar Plot
+Using the `ggplot2` package, we created a bar plot that shows the total frequency of each data science skill mentioned in the jobboards, ranked from highest to lowest.
+```{r echo=FALSE, warning=FALSE}
+data_skills_tidy %>% 
+  ggplot(aes(x = reorder(Keyword, -Total_Mention), y = Total_Mention, fill = Keyword)) + 
+  #x-axis are skills ordered by total frequency descending, y-axis is frequency, color filled by different skills
+  geom_bar(stat = "identity") + #using a bar plot
+  guides(fill = FALSE) + #no legend, since the information is redundant
+  xlab("Data Science Skills") + ylab("Total Frequency") + #customize x and y axis title
+  ggtitle("Data Science Skills Ranked by Popularity") + #customize title
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) #rotate the x axis by 60 degrees so each skill is shown properly
+```
+##Treemap
+Using the `treemap` package, we create a treemap to show the percentage of each data science skill in respect to total.
+```{r echo=FALSE, warning=FALSE}
+data_skills_tidy %>% treemap(index = "Keyword", #choosing "Keyword"" as categorical variable
+                             vSize = "Percentage", #choosing "Percentage" as quantitative variable (how big is each category)
+                             palette = brewer.pal(17, "Set3"), #select color palette from RColorBrewer
+                             title = "Proportion of Data Science Skills", #customize title
+                             fontsize.title = 14) #change font size of the title
+```
+
+
+##Word Cloud
+Using the `wordcloud` package, we decided to visually determine the most popular words in our data set. We used Data Science Tutorial YouTube Channel [YouTube.com](https://youtube.com/watch?v=Y2sAH0luu_l&feature=share) as a reference. 
+```{r echo=FALSE,warning=FALSE}
+Corpus<- Corpus(VectorSource(data_skills_2$Keyword))
+Corpus<- tm_map(Corpus, content_transformer(tolower))
+Corpus<- tm_map(Corpus, removeWords, stopwords())
+Corpus<- tm_map(Corpus, stripWhitespace)
+wordcloud(Corpus, min.freq = 10, colors = brewer.pal(8,"Set2"),random.order = FALSE, rot.per = .1)
+```
+
+##Conclusions
+
+We observed the top five keyword/skills mentioned by post throughout the different platforms were *Machine Learning*, *Analysis*, *Statistics*, *Computer Science* and *Communication*. These keywords/skills ranked differently across platforms.
+
+In LinkedIn, the rank was as follows: *Machine Learning*, *Analysis*, *Statistics*, *Computer Science* and *Communication*.
+
+In Indeed and Simply Hired, the rank was as follows: *Analysis*, *Machine Learning*, *Statistics*, *Computer Science* and *Communication*.
+
+In Monster, the rank was as follows: *Analysis*, *Statistics*, *Machine Learning*, *Communication* and *Computer Science*.

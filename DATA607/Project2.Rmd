@@ -1,0 +1,214 @@
+---
+title: "Project 2 - Preparing different datasets"
+author: "Isabel Ramesar"
+date: "March 10, 2019"
+output:
+  rmdformats::readthedown:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+---
+##Load Libraries
+```{r eval=FALSE}
+library(xml2)
+library(rvest)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(stringr)
+library(RColorBrewer)
+```
+
+
+#Data Set 1
+
+Topic: Avocado Prices <br />
+Posted by: Samriti Malhotra <br />
+URL: http://www.hassavocadoboard.com/retail/volume-and-price-data <br />
+
+##Create a .CSV file and Read .CSV into R
+
+I combined both Conventional and Organic 2018 tables into one table.
+
+```{r echo=FALSE}
+avocadoprices<-read.csv("HAB_Retail_Volume_and_Price_2018_conventional&organic_TotalUS.csv", header=TRUE)
+head(avocadoprices)
+```
+
+
+```{r eval=FALSE}
+avocadoprices<-read.csv("https://raw.githubusercontent.com/IsARam/DATA607/master/HAB_Retail_Volume_and_Price_2018_conventional%26organic_TotalUS.csv?_sm_au_=iVVr1ZHQL3QjSSsP",sep=",")
+head(avocadoprices)
+```
+
+##Tidy Data {.tabset .tabset-fade}
+
+I am using `tidyr` to tidy data.
+
+###Rename Column Names
+
+I wanted to rename columns names to make the table more readable.
+```{r}
+colnames(avocadoprices)
+```
+```{r}
+colnames(avocadoprices)<- c("Type", "Date", "AveragePrice","TotalVolume","Product4046", "Product4225"   , "Product4770", "TotalBags", "SmallBags","LargeBags","XLargeBags")
+head(avocadoprices)
+```
+
+###Gather Data
+I wanted to create a column for volume type. A common problem is a dataset where some of the column names
+are not names of variables, but values of a variable.
+```{r}
+avocadoprices<-avocadoprices %>% gather("Product4046","Product4225","Product4770", "TotalBags", "SmallBags","LargeBags","XLargeBags", key="VolumeType", value = "Volume")
+head(avocadoprices)
+```
+###Seperate Data
+I wanted to distinguish the Date Column primarily summarizing within the month.
+```{r}
+avocadoprices<-avocadoprices %>% separate(Date, into = c("Year","Month","Date"), sep="-")
+head(avocadoprices)
+```
+
+##Data Transformation {.tabset .tabset-fade}
+
+I am using `dplyr` to transform data.
+
+###Descriptive Statistics
+```{r}
+summary(avocadoprices)
+```
+
+###Analysis & Visuals
+
+    Which Avocado type has the highest total volume, conventional or organic?
+    Conventional Avocado's has a higher Total Volume over Organic.
+```{r}
+avocadobytype<-
+avocadoprices %>%
+  group_by(Type) %>%
+  summarize(TotalVolume = sum(TotalVolume))
+avocadobytype
+```
+
+```{r}
+ggplot(avocadobytype)+ geom_point(aes(Type,TotalVolume)) + labs(x="Type",Y= "Total Volume")
+```
+   
+    Which month has the Highest Volume?
+    April has the highest month of Total Volume sold.
+```{r}
+avocadobymonth<-
+avocadoprices %>%
+  group_by(Month) %>%
+  summarize(TotalVolume = sum(TotalVolume))
+avocadobymonth
+```
+
+
+```{r}
+ggplot(avocadobymonth)+ geom_point(aes(Month,TotalVolume)) + labs(x="Month",Y= "Total Volume")
+```
+
+
+#Data Set 2
+
+Topic: Immigration and Adjustment Status<br />
+Posted by: Debabratra Kabiraji<br />
+URL: https://www.dhs.gov/immigration-statistics/special-reports/legal-immigration<br />
+
+```{r echo=FALSE}
+permres<-read.csv("FY2018_Q3_Tables_Final_D correctedPermRes.csv", header=TRUE)
+permres
+```
+
+##Create a .CSV file and Read .CSV into R
+
+```{r eval=FALSE}
+permres <-read.csv("https://raw.githubusercontent.com/IsARam/DATA607/master/FY2018_Q3_Tables_Final_D%20correctedPermRes.csv?_sm_au_=iVVr1ZHQL3QjSSsP",sep=",")
+head(permres)
+```
+
+
+##Tidy Data  {.tabset .tabset-fade}
+
+I am using `tidyr` to tidy data. I will only be working with the total columns as opposed to the quarterly data focusing on Region.
+
+###Subset Data and Rename Column Names
+```{r}
+newpermres<- permres[c(7:13),c(1,2,7,12)]
+colnames(newpermres)<-c("Region","Total","Adjustments","New")
+newpermres
+```
+
+###Gather Data
+I wanted to create a column for permanent resident status. A common problem is a dataset where some of the column namesare not names of variables, but values of a variable.
+```{r}
+newpermrestidy<-newpermres %>% gather("Adjustments","New",key="Status", value = "Amount")
+newpermrestidy<-select(newpermrestidy,"Region","Status","Amount")
+newpermrestidy
+```
+##Data Transformation {.tabset .tabset-fade}
+
+###Descriptive Statistics
+```{r}
+summary(newpermrestidy)
+```
+
+###Analysis & Visuals
+
+ Which is the highest status reason?
+
+```{r}
+permresbystatus<-
+newpermrestidy %>%
+  group_by(Status) %>%
+  summarize(Amount = sum(Amount))
+permresbystatus
+```
+```
+ 
+
+
+###Visual
+
+#Data Set 3
+Topic: Train Accident Data<br />
+Posted by: Isabel Ramesar<br />
+URL:https://safetydata.fra.dot.gov/officeofsafety/publicsite/on_the_fly_download.aspx<br />
+
+
+##Create a .CSV file and Read .CSV into R
+  
+
+```{r eval=FALSE}
+trainaccident<-read.csv("https://raw.githubusercontent.com/IsARam/DATA607/master/NYRailEquipmentAccident_Incident.csv?_sm_au_=iVVVFSP6Vn7Q4Sps",sep=",")
+head(trainaccident)
+```
+
+##Tidy Data  {.tabset .tabset-fade}
+
+###Rename Column Names
+
+###Gather Data
+
+###Seperate Data
+
+##Data Transformation {.tabset .tabset-fade}
+
+###Descriptive Statistics
+
+###Analysis & Visuals
+
+
+###Analysis
+Analysis Requested:<br />
+
+    How many accidents per month? 
+    Which railroad had the most accidents?
+    Which county has the most accidents?
+    Do accidents occur most in AM or PM?
+
+

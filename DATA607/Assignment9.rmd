@@ -1,0 +1,207 @@
+---
+title: "Assignment 9 - Web API's "
+date: "December 10,2019"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+
+---
+
+#Background {.tabset .tabset-fade .tabset-pills}
+
+## Introduction
+"The New York Times releases their Article Search Application Programming Interface (API) in February 9,2009. The Article Search API is a way to find, discover, explore, have fun and build new things." ^1^ [https://open.blogs.nytimes.com/2009/02/04/announcing-the-article-search-api/] <br/> "NYT currently has ten public APIs: Archive, Article Search, Books, Community, Geographic, Most Popular, Semantic, Times Newswire, TimesTags, and Top Stories. Data is returned as JSON." ^2^ [https://developer.nytimes.com/faq]
+
+##Assignment 
+Choose one of the New York Times APIs, construct an interface in R to read in the JSON data, and transform it to an R dataframe.
+
+##Libraries
+```{r warning=FALSE,comment=FALSE, message=FALSE}
+library(jsonlite)
+library(DT)
+library(knitr)
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(ggplot2)
+library(wordcloud)
+library(tm)
+```
+
+#Tidy & Wrangle {.tabset .tabset-fade .tabset-pills}
+
+##Raw Data
+Once I recieved my article key, I was able to load the data from the API into R.
+```{r}
+article_key <- "K5dRA2CI1W5NBQesMENCsbvhsKCwBBKF"
+term <- "tulsi+gabbard"
+begin_date <- "20180101"
+end_date <- "20190328"
+sorted<- "oldest"
+url <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?q=",term,
+                  "&begin_date=",begin_date,"&end_date=",end_date,"&sort=",sorted,
+                  "&facet_filter=true&api-key=",article_key, sep="")
+req <- fromJSON(paste0(url),flatten = TRUE)
+articles <- req$response$docs
+```
+
+I wanted to incorporate an easier to navigate and use table bu utilizing the `DT` package. I liked the look and feel of having a search feature as well as the abilities to have viewer to save or print the data table. Rstudio's Github page on DT was a useful resource (https://rstudio.github.io/DT/).
+```{r}
+datatable(articles, extensions = 'Buttons', options = list(
+  dom = 'Bfrtip',
+  buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  )
+)
+```
+
+Using an article, "Working With The New York Times API in R" from Storybench.org (http://www.storybench.org/working-with-the-new-york-times-api-in-r/), I realized I needed to add code to loop through the pages and combine all results into a data frame.
+```{r}
+maxPages <- round((req$response$meta$hits[1] / 10)-1) 
+pages <- list()
+for(i in 0:maxPages){
+  nytSearch <- fromJSON(paste0(url, "&page=", i), flatten = TRUE) %>% data.frame() 
+  message("Retrieving page ", i)
+  pages[[i+1]] <- nytSearch 
+  Sys.sleep(1) 
+}
+allNYTSearch <- rbind_pages(pages)
+```
+
+---
+
+##Columns & Structure
+
+I wanted to view the column names of the data to determine whih data to subset.
+```{r}
+colnames(allNYTSearch)
+```
+
+This is what the combined data table looked like.
+```{r}
+datatable(allNYTSearch, extensions = 'Buttons', options = list(
+  dom = 'Bfrtip',
+  buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  )
+)
+```
+
+---
+
+##Subset
+For my analysis, I will only work with four columns: `web_url`,`news_desk`,`section_name` and `pub_date`.
+```{r}
+tulsiarticles<- allNYTSearch[, c("response.docs.web_url","response.docs.type_of_material","response.docs.news_desk","response.docs.section_name","response.docs.pub_date","response.docs.keywords")]
+```
+
+I again wanted to incorporate an easier to navigate and use table bu utilizing the `DT` package. 
+```{r}
+datatable(tulsiarticles, extensions = 'Buttons', options = list(
+  dom = 'Bfrtip',
+  buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  )
+)
+```
+
+#Analysis & Visualization {.tabset .tabset-fade .tabset-pills}
+
+##Research
+
+I chose to work with the Article Search API with a focus on the string `tulsi+gabbard`. <br/> 
+
+I want to analyze the following:
+
+1. String apperance by article amount by Day.<br/>
+
+```{r}
+tulsiarticles %>%
+  mutate(pubDay=gsub("T.*","",response.docs.pub_date)) %>%
+  group_by(pubDay) %>%
+  summarise(count=n()) %>%
+  #filter(count >= 2) %>%
+  ggplot() +
+  geom_bar(aes(x=reorder(pubDay, count), y=count), stat="identity") + coord_flip()+xlab("Day")+ylab("Count")+ggtitle("Count of Keyword Mention in Articles by Day")
+```
+
+In January 12th, 2019 there were three articles that mentioned Tulsi. Those articles were from the day she annouced she was running for president.
+
+
+2. String appearance by News desk.<br/>
+
+```{r}
+tulsiarticles %>% 
+  group_by(response.docs.news_desk) %>%
+  summarize(count=n()) %>%
+  mutate(percent = (count / sum(count))*100) %>%
+  ggplot() +
+  geom_bar(aes(y=percent, x=response.docs.news_desk, fill=response.docs.news_desk), stat = "identity") + coord_flip()+xlab("News Desk")+ylab("Percent")+ggtitle("Percent of Keyword Mention by News Desk")
+```
+
+The top three News Desk categories in which the string appeared were `Politics`, `U.S` and `Washington`, respectively.
+
+3. String appearnace by Section Name.<br/>
+```{r}
+tulsiarticles %>% 
+  group_by(response.docs.section_name) %>%
+  summarize(count=n()) %>%
+  mutate(percent = (count / sum(count))*100) %>%
+  ggplot() +
+  geom_bar(aes(y=percent, x=response.docs.section_name, fill=response.docs.section_name), stat = "identity") + coord_flip()+xlab("Section Name")+ylab("Percent")+ggtitle("Percent of Keyword Mention by Section Name")
+```
+
+The top three Section Name in which the string appeared were `U.S`, `Opinion` and `Briefing`, respectively.
+
+4. String appearnace by Type of Material.<br/>
+
+```{r}
+tulsiarticles %>% 
+  group_by(response.docs.type_of_material) %>%
+  summarize(count=n()) %>%
+  mutate(percent = (count / sum(count))*100) %>%
+  ggplot() +
+  geom_bar(aes(y=percent, x=response.docs.type_of_material, fill=response.docs.type_of_material), stat = "identity") + coord_flip()+xlab("Type of Material")+ylab("Percent")+ggtitle("Percent of Keyword Mention by Type of Material")
+```
+
+The top three Section Name in which the string appeared were `News`, `Interactive Feature` and `Op-Ed`, respectively.
+
+---
+
+##Word Cloud
+To start the word cloud, I needed to examine keywords which I realize was nested within the raw API extract. I needed to unnest the `keywords` column. I used the following article as a resource: https://github.com/tidyverse/tidyr/issues/199.
+```{r}
+tulsikeywords<- unnest(tulsiarticles, tulsiarticles$response.docs.keywords)
+datatable(tulsikeywords, extensions = 'Buttons', options = list(
+  dom = 'Bfrtip',
+  buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  )
+)
+```
+
+Now I want to tidy the `value` column and sepearte into two columns.
+
+```{r error=FALSE,comment=FALSE}
+tulsikeywordsnew<- separate(tulsikeywords, col= value, into = c("First Keyword","Second Keyword"))
+datatable(tulsikeywordsnew, extensions = 'Buttons', options = list(
+  dom = 'Bfrtip',
+  buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  )
+)
+```
+
+
+```{r warning=FALSE}
+Corpus<- Corpus(VectorSource(tulsikeywordsnew$`First Keyword`))
+Corpus<- tm_map(Corpus, content_transformer(tolower))
+Corpus<- tm_map(Corpus, removeWords, stopwords())
+Corpus<- tm_map(Corpus, stripWhitespace)
+wordcloud(Corpus, min.freq = 1, colors = brewer.pal(8,"Set2"),random.order = FALSE, rot.per = .1)
+```
+
+The most mentioned words were `Presidential` , `Democratic` and `United`.
+
+---
+
+#Conclusion
+
+The NYT's API was a great tool to use for analysis. Using API's can provide great insights and correlation. The documentation provided by the NYT was very helpful.There were two rate limits per API: 4,000 requests per day and 10 requests per minute. The NYT APIs uses a RESTful style and a resource-oriented architecture. "REST is the underlying architectural principle of the web. The amazing thing about the web is the fact that clients (browsers) and servers can interact in complex ways without the client knowing anything beforehand about the server and the resources it hosts." (https://stackoverflow.com/questions/671118/what-exactly-is-restful-programming)
+

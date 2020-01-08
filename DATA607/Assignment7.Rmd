@@ -1,0 +1,107 @@
+---
+title: "Assignment 7 - Working with XML and JSON in R"
+author: "Isabel Ramesar"
+date: "March 17,2019"
+output:
+  rmdformats::readthedown:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Subject
+"Minimalism is a tool that can assist you in finding freedom. Freedom from fear. Freedom from worry. Freedom from overwhelm. Freedom from guilt. Freedom from depression. Freedom from the trappings of the consumer culture we've built our lives around. Real freedom." - The Minimalists https://www.theminimalists.com/minimalism/
+
+#Libraries
+```{r}
+library(RCurl)
+library(stringr)
+library(plyr)
+library(XML)
+library(jsonlite)
+library(rvest)
+```
+
+
+#HTML
+
+##Overview
+HTML is the standard markup language for creating Web pages. HTML stands for Hyper Text Markup Language and describes the structure of Web pages using markup. HTML elements are the building blocks of HTML pages and are represented by tags. HTML tags label pieces of content such as "heading", "paragraph", "table", and so on. Browsers do not display the HTML tags, but use them to render the content of the page
+
+##Creating the files
+I used visual studio code as my text editor to create the HTML and used the following site as a reference:https://www.w3schools.com/html/html_tables.asp.
+
+
+![HTML](/Users/iramesa/Desktop/Books-HTML.png)
+
+##Read and load file
+I installed the `rvest` package to read my HTMLfile and used the `readHTMLTable` fucntion.
+```{r}
+HTMLfile<-"C:/Users/iramesa/Desktop/books.html"
+HTMLData<- paste(readLines(HTMLfile), collapse="\n")
+booksHTML<-readHTMLTable(HTMLData)
+kable(booksHTML)
+```
+
+-----
+
+#XML 
+
+##Overview
+XML stands for eXtensible Markup Language. XML was designed to store and transport data. XML was designed to be both human- and machine-readable.
+
+##Creating the files
+I used visual studio code as my text editor to create the HTML and used the following site as a reference:https://www.w3schools.com/xml/xml_elements.asp.
+
+![XML](/Users/iramesa/Desktop/Books-XML.png)
+
+##Read and Load file
+I installed the `XML` package to read my XMLfile and used the `xmlTreeParse` fucntion.
+
+```{r}
+library(XML)
+XMLfile<-"C:/Users/iramesa/Desktop/books.xml"
+xmldoc<-xmlParse(XMLfile)
+rootNode<-xmlRoot(xmldoc)
+data <- xmlSApply(rootNode,function(x) xmlSApply(x, xmlValue))
+booksXML <- data.frame(t(data),row.names=NULL)
+kable(booksXML[,])
+```
+
+------
+
+#JSON
+
+##Overview
+JSON stands for JavaScript Object Notation.JSON is a syntax for storing and exchanging data.JSON is text, written with JavaScript object notation.JSON is a lightweight data-interchange format and is "self-describing" and easy to understand. It is language independent. JSON uses JavaScript syntax, but the JSON format is text only.Text can be read and used as a data format by any programming language.
+
+##Creating the files
+I used visual studio code as my text editor to create the JSON file and used the following site as a reference: https://www.w3schools.com/jS/js_json_arrays.asp and http://opensource.adobe.com/Spry/samples/data_region/JSONDataSetSample.
+
+![JSON](/Users/iramesa/Desktop/Books-JSON.png)
+
+
+##Read and Load file
+
+I installed the `rjosn` package to get my JSON file and used the `fromJSON()` fucntion.
+```{r}
+library(jsonlite)
+JSONfile<-"C:/Users/iramesa/Desktop/books.json"
+JsonData<-fromJSON(JSONfile)
+booksJSON<-as.data.frame(JsonData)
+rownames(booksJSON)<-NULL
+names(booksJSON)<-c("Title","Author","Publisher","Format","Price")
+kable(booksJSON)
+```
+
+Resource: https://www.datacamp.com/community/tutorials/r-data-import-tutorial#javascript
+
+
+#Conclusion
+All tables are the same except I had to tidy the JSON table because I used the `as.data.frame` function for the JSON table. I did not use dataframe functions for HTML and XML data.

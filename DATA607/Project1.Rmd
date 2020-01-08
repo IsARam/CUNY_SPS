@@ -1,0 +1,102 @@
+---
+title: "Project 1 - Chess Tournament Data"
+author: "Isabel Ramesar"
+output:
+  html_document:
+    css: ./lab.css
+    highlight: pygments
+    theme: cerulean
+    pdf_document: default
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Instructions
+Create an R Markdown file that generates a .CSV file (that could for example be imported into a SQL database) with the following information for all of the players:Player's Name, Player's State, Total Number of Points, Player's Pre-Rating, and Average Pre Chess Rating of Opponents.
+
+
+#Load Data {.tabset .tabset-fade}
+
+
+## Reading Into R
+
+```{r}
+library(stringr)
+
+tournament <- readLines("https://raw.githubusercontent.com/IsARam/DATA607/master/tournamentinfo.txt", warn = FALSE)
+```
+
+## Display Table 
+```{r}
+head(tournament)
+```
+
+# Tidy Data {.tabset .tabset-fade}
+
+
+##Row Identification
+```{r}
+line1 <- c(seq(5,length(tournament),by=3))
+line2 <- c(seq(6,length(tournament),by=3))
+```
+
+##Extract & Scrubing
+```{r}
+name <- str_replace_all(str_extract(tournament[line1],"([|]).+?\\1"),"[|]","")
+state <- str_trim(str_extract(tournament[line2],"[[:blank:]]+\\w+"))
+points <- str_sub(tournament[line1],str_locate(tournament[line1],"[.]")[1]-1,str_locate(tournament[line1],"[.]")[1]+1)
+prerating <- as.numeric(str_extract(str_sub(tournament[line2],str_locate(tournament[line2],":")[1],str_locate(tournament[line2],">")[1]),"[[:digit:]]+"))
+```
+
+
+##Data Frame Creation
+```{r}
+tournamentrows <- data.frame(name,state,points,prerating, stringsAsFactors = FALSE)
+head(tournamentrows)
+```
+
+# Data Manipulation {.tabset .tabset-fade}
+
+##Average Pre-Rating Per Player
+```{r}
+oppavgrate <- NULL
+for (i in seq(5,length(tournament),by=3))
+{oppavgrate <- c(oppavgrate, as.integer(mean(tournamentrows$prerating[c(as.numeric(unlist(str_extract_all(str_sub(tournament[i], start=51),"[[:digit:]]+"))))])))}
+```
+
+##Append To Dataframe
+```{r}
+tournmanettable <- cbind(tournamentrows,oppavgrate)
+head(tournmanettable)
+```
+
+# CSV {.tabset .tabset-fade}
+ 
+```{r}
+# Write CSV in R
+write.table(tournmanettable, file = "tournamentinfo.csv",row.names=FALSE, na="",col.names=TRUE, sep=",")
+```
+
+#Visualization {.tabset .tabset-fade}
+
+##Group and Summarize
+```{r message=FALSE}
+library(dplyr)
+tournamentbystate <-group_by(tournmanettable, state)
+tournamentbystate <-summarize(tournamentbystate, meanpre = mean(prerating),meanoppavg = mean(oppavgrate))
+```
+
+##Plot
+```{r}
+library(ggplot2)
+
+ggplot(tournamentbystate, aes(x=state, y=meanpre)) + 
+  geom_col(color="dark green",fill="dark green")+ 
+  labs(title ="Rating by State", 
+       x = "State", 
+       y = "Average Rating") 
+```
+

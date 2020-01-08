@@ -1,0 +1,87 @@
+---
+title: "Assignment 7 - Working with XML and JSON in R"
+date: "March 17,2019"
+output:
+    rmdformats::readthedown:
+      self_contained: true
+      thumbnails: true
+      lightbox: true
+      gallery: false
+      code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#HTML
+
+##Overview
+HTML is the standard markup language for creating Web pages. HTML stands for Hyper Text Markup Language and describes the structure of Web pages using markup. HTML elements are the building blocks of HTML pages and are represented by tags. HTML tags label pieces of content such as "heading", "paragraph", "table", and so on. Browsers do not display the HTML tags, but use them to render the content of the page
+
+##Creating the files
+I used visual studio code as my text editor to create the HTML and used the following site as a reference:https://www.w3schools.com/html/html_tables.asp.
+
+
+![HTML](/Users/iramesa/Desktop/Books-HTML.png)
+
+#Read file
+```{r}
+
+```
+
+
+#Load file
+```{r}
+
+```
+
+
+-----
+
+#XML 
+
+##Overview
+XML stands for eXtensible Markup Language. XML was designed to store and transport data. XML was designed to be both human- and machine-readable.
+
+##Creating the files
+I used visual studio code as my text editor to create the HTML and used the following site as a reference:https://www.w3schools.com/xml/xml_elements.asp.
+
+![XML](/Users/iramesa/Desktop/Books-XML.png)
+
+##Read file
+```{r}
+
+```
+
+
+##Load file
+
+
+```{r}
+
+```
+
+
+------
+
+#JSON
+
+##Overview
+JSON stands for JavaScript Object Notation.JSON is a syntax for storing and exchanging data.JSON is text, written with JavaScript object notation.JSON is a lightweight data-interchange format and is "self-describing" and easy to understand. It is language independent. JSON uses JavaScript syntax, but the JSON format is text only.Text can be read and used as a data format by any programming language.
+
+##Creating the files
+I used visual studio code as my text editor to create the JSON file and used the following site as a reference: https://www.w3schools.com/jS/js_json_arrays.asp and http://opensource.adobe.com/Spry/samples/data_region/JSONDataSetSample.
+
+![JSON](/Users/iramesa/Desktop/Books-JSON.png)
+
+
+##Read and Load file
+
+I installed the `rjosn` package to get my JSON file and used the `fromJSON()` fucntion.
+```{r}
+library(rjson)
+JsonData<-fromJSON(file="<books.json>")
+```
+
+#Conclusion

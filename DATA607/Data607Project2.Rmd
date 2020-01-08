@@ -1,0 +1,221 @@
+---
+title: "Different datasets"
+date: "March 10, 2019"
+output:
+  rmdformats::readthedown:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+---
+##Load Libraries
+```{r eval=TRUE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(knitr)
+```
+
+
+#Data Set 1
+
+Topic: Avocado Prices <br />
+Posted by: Samriti Malhotra <br />
+URL: http://www.hassavocadoboard.com/retail/volume-and-price-data <br />
+
+##Create a .CSV file and Read .CSV into R
+
+I combined both Conventional and Organic 2018 tables into one table.
+```{r echo=FALSE}
+avocadoprices<-read.csv("HAB_Retail_Volume_and_Price_2018_conventional&organic_TotalUS.csv", sep = ",")
+head(avocadoprices)
+```
+
+
+```{r eval=FALSE}
+avocadoprices<-read.csv("https://raw.githubusercontent.com/DATA607/master/avocado.csv",sep=",")
+head(avocadoprices)
+```
+
+##Tidy Data {.tabset .tabset-fade}
+
+I am using `tidyr` to tidy data.
+
+###Rename Column Names
+
+I wanted to rename columns names to make the table more readable.
+```{r}
+colnames(avocadoprices)
+```
+
+```{r}
+colnames(avocadoprices)<- c("Type", "Date", "AveragePrice","TotalVolume","Product4046", "Product4225"   , "Product4770", "TotalBags", "SmallBags","LargeBags","XLargeBags")
+head(avocadoprices)
+```
+
+###Gather Data
+I wanted to create a column for volume type. A common problem is a dataset where some of the column names
+are not names of variables, but values of a variable.
+```{r eval=TRUE}
+avocadoprices<-avocadoprices %>% gather("Product4046","Product4225","Product4770", "TotalBags", "SmallBags","LargeBags","XLargeBags", key="VolumeType", value = "Volume")
+head(avocadoprices)
+```
+###Seperate Data
+I wanted to distinguish the Date Column primarily summarizing within the month.
+```{r eval=FALSE}
+avocadoprices<-avocadoprices %>% separate(Date, into = c("Year","Month","Date"), sep="-")
+head(avocadoprices)
+```
+
+##Data Transformation {.tabset .tabset-fade}
+
+I am using `dplyr` to transform data.
+
+###Descriptive Statistics
+```{r}
+summary(avocadoprices)
+```
+
+###Analysis
+
+    Which Avocado type has the highest total volume, conventional or organic?
+    Conventional Avocado's has a higher Total Volume over Organic.
+```{r eval=TRUE}
+avocadobytype<-
+avocadoprices %>%
+  group_by(Type) %>%
+  summarize(TotalVolume = sum(TotalVolume))
+avocadobytype
+```
+
+```{r eval=TRUE}
+ggplot(avocadobytype)+ geom_point(aes(Type,TotalVolume)) + labs(x="Type",Y= "Total Volume")
+```
+   
+    Which month has the Highest Volume?
+    April has the highest month of Total Volume sold.
+ 
+code chunk works in Console however when Knitting I get the following error: `Error: Column ` avocadoprices$Month` is unkown`
+
+```{r eval=FALSE}
+avocadobymonth<-avocadoprices %>%group_by(avocadoprices$Month) %>% summarize(TotalVolume = sum(TotalVolume))
+avocadobymonth
+```
+
+```{r eval=FALSE}
+ggplot(avocadobymonth)+ geom_point(aes(Month,TotalVolume)) + labs(x="Month",Y= "Total_Volume")
+```
+
+
+#Data Set 2
+Topic: Cold and Heat Absorbtion<br />
+Posted by: Christopher Ayre<br />
+
+
+##Create a .CSV file and Read .CSV into R
+
+```{r echo=FALSE}
+abs<-read.csv("science proj data.csv")
+head(abs)
+```
+
+
+```{r eval=FALSE}
+abs<-read.csv("https://raw.githubusercontent.com/DATA607/master/science%20proj%20data.csv",sep = ",")
+head(abs)
+```
+ 
+##Tidy Data  {.tabset .tabset-fade}
+
+###Rename Column Names
+```{r}
+colnames(abs) <- c("color",0,10,20,30,40,50,60,"phase")
+```
+
+###Gather Data
+I wanted to convert the table from a wide format to a long format by using `gather`. Upon using the `str` function, I discovered that time was stored as a chr data type so I need to convert newabs$time to a numeric data type.
+```{r eval=TRUE}
+newabs<-gather(abs, time, temperature, "0":"60")
+str(newabs)
+newabs$time <- as.numeric(newabs$time)
+str(newabs)
+head(newabs)
+```
+
+
+##Data Transformation {.tabset .tabset-fade}
+
+###Descriptive Statistics
+```{r eval=TRUE}
+summary(newabs)
+```
+
+###Analysis
+
+```{r eval=TRUE}
+ggplot(newabs)+ geom_point(aes(newabs$color,newabs$temperature)) + labs(x="Color",Y= "Temperature")
+```
+
+
+#Data Set 3
+
+Topic: Top Best Seller Books on Amazon<br />
+Posted by: Henry otuadinma<br />
+
+##Create a .CSV file and Read .CSV into R
+
+```{r}
+books<- read.csv("topBooks.csv",sep=",")
+head(books)
+```
+
+```{r}
+str(books)
+```
+
+##Tidy Data  {.tabset .tabset-fade}
+
+I am using `tidyr` to tidy data. I will only be working with the total columns as opposed to the quarterly data focusing on Region.
+
+###Subset Data and Rename Column Names
+```{r}
+colnames(books)<- c("Title", "Author", "Genre","Rating","Image", "Rating"   , "Type", "Price")
+colnames(books)
+```
+
+```{r}
+newbooks<- subset(books, select = c(1:4))
+newbooks
+```
+```{r}
+newbookswona<-na.omit(newbooks)
+newbookswona
+```
+
+###Gather Data
+
+##Data Transformation {.tabset .tabset-fade}
+
+After subsetting the table, this table is in an ideal form to analyze. 
+
+###Descriptive Statistics
+```{r}
+summary(newbookswona)
+```
+
+###Analysis 
+
+```{r eval=TRUE}
+avgratingbygenre<-
+newbookswona %>%
+  group_by(Genre) %>%
+  summarize(AverageRating = mean(Rating))
+avgratingbygenre
+```
+```{r}
+qplot(x = avgratingbygenre$Genre, y = avgratingbygenre$AverageRating, data = avgratingbygenre, geom="point")
+```
+
+Religion appears to be the highest rated Genre and Literature & Fiction appear to be the lowest rated Genre.
+

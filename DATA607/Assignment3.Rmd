@@ -1,0 +1,102 @@
+---
+title: "Assignment 3"
+date: "February 12, 2019"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Homework Questions
+3. Copy the introductory example. The vector name stores the extracted names.
+R> name
+[1] "Moe Szyslak" "Burns, C. Montgomery" "Rev. Timothy Lovejoy"
+[4] "Ned Flanders" "Simpson, Homer" "Dr. Julius Hibbert"
+
+```{r}
+library(stringr)
+raw.data <- "555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5543642Dr. Julius Hibbert"
+raw.data
+```
+
+(a) Use the tools of this chapter to rearrange the vector so that all elements conform to
+the standard first_name last_name.
+```{r}
+name <- unlist(str_extract_all(raw.data, "[[:alpha:]., ]{2,}"))
+name
+```
+
+```{r}
+name_remove_title_middle <- str_replace(name, "([[:alpha:]]{1,3}\\.\\s)", "")
+name_first_last <- str_replace(name_remove_title_middle, "([[:alpha:]]+), ([[:alpha:]]+)", "\\2 \\1")
+name_first_last
+```
+
+(b) Construct a logical vector indicating whether a character has a title (i.e., Rev. and
+Dr.).
+
+```{r}
+str_detect(name, "Dr.|Rev.")
+```
+
+(c) Construct a logical vector indicating whether a character has a second name.
+```{r}
+str_count(str_trim(str_replace_all(name, "Dr.|Rev.", "")), " ") > 1
+```
+
+
+4. Describe the types of strings that conform to the following regular expressions and
+construct an example that is matched by the regular expression.
+(a) [0-9]+\\$
+```{r}
+t<-c("test$", "$24$03", 2403)
+unlist(str_extract_all(t, "[0-9]+\\$"))
+```
+
+(b) \\b[a-z]{1,4}\\b
+```{r}
+st<-"This is a test of question 4b"
+unlist(str_extract_all(st, "\\b[a-z]{1,4}\\b"))
+```
+
+(c) .*?\\.txt$
+```{r}
+tt<-c("test.txt","test.xlsx","test.docx")
+unlist(str_extract_all(tt, ".*?\\.txt$"))
+```
+
+
+(d) \\d{2}/\\d{2}/\\d{4}
+```{r}
+ft<- c("2/12/19","02/12/2019","02/12/19")
+unlist(str_extract_all(ft,"\\d{2}/\\d{2}/\\d{4}"))
+```
+
+(e) <(.+?)>.+?</\\1>
+```{r}
+fit<-c("<test>blah</test>","<\test>","<tester>")
+unlist(str_extract_all(fit,"<(.+?)>.+?</\\1>"))
+```
+
+
+#Extra Credit
+9. The following code hides a secret message. Crack it with R and regular expressions.
+Hint: Some of the characters are more revealing than others! The code snippet is also
+available in the materials at www.r-datacollection.com.
+clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0Tanwo
+Uwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigO
+d6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5
+fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr
+
+```{r}
+sc<- "c1copCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf0w3AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPalotfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr"
+extractsc <- unlist(str_extract_all(sc, "[[:upper:]]|[[:punct:]]"))
+combinesc <- paste(extractsc, collapse = '')
+secretmessage<-str_replace_all(combinesc, "\\.", " ")
+secretmessage
+```
+

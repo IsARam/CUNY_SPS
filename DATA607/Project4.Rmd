@@ -1,0 +1,162 @@
+---
+title: "Data Classification"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+    code_folding: show
+
+---
+
+#Background {.tabset .tabset-fade .tabset-pills}
+
+It can be useful to be able to classify new "test" documents using already classified "training" documents. A common example is using a corpus of labeled spam and ham (non-spam) e-mails to predict whether or not a new document is spam.
+
+For this project, you can start with a spam/ham dataset, then predict the class of new documents (either withheld from the training dataset or from another source such as your own spam folder). One example corpus: https://spamassassin.apache.org/publiccorpus/
+
+#Libraries
+```{r warning=FALSE,comment=FALSE, message=FALSE}
+library(tm)
+library(knitr)
+library(wordcloud)
+library(tidyverse)
+library(naivebayes)
+library(RColorBrewer)
+library(e1071)
+```
+
+#Data Selection and Load into R
+
+First I created a dataframe for Ham and Spam, individually. Then I created a list of documents for Ham and Spam. I then combined Ham and Spam into one dataframe.
+```{r}
+ham_dir="c:/Users/documents/Project4/easy_ham"
+hamFileNames = list.files(ham_dir)
+
+ham_docs_list <- NA
+for(i in 1:length(hamFileNames))
+{
+  filepath<-paste0(ham_dir, "/", hamFileNames[1])  
+  text <-readLines(filepath)
+  list1<- list(paste(text, collapse="\n"))
+  ham_docs_list = c(ham_docs_list,list1)
+}
+
+hamDF <-as.data.frame(unlist(ham_docs_list),stringsAsFactors = FALSE)
+hamDF$type <- "ham"
+colnames(hamDF) <- c("text","type")
+
+spam_dir="c:/Users/documents/Project4/spam"
+spamFileNames = list.files(spam_dir)
+
+spam_docs_list <- NA
+for(i in 1:length(spamFileNames))
+{
+  filepath<-paste0(spam_dir, "/", spamFileNames[1])  
+  text <-readLines(filepath)
+  list1<- list(paste(text, collapse="\n"))
+  spam_docs_list = c(spam_docs_list,list1)
+}
+
+spamDF <-as.data.frame(unlist(spam_docs_list),stringsAsFactors = FALSE)
+spamDF$type <- "spam"
+colnames(spamDF) <- c("text","type")
+
+spam_ham_df <- rbind(hamDF, spamDF)
+```
+
+
+#Data Preparation {.tabset .tabset-fade .tabset-pills}
+
+For this world cloud, the data will need to be tidy. First, I created the dataset,  removed numbers, removed punctuation, removed stopwords and removed excess white space.
+    
+##Corpus 
+```{r comment=FALSE, message=FALSE, warning=FALSE}
+emailCorpus <- Corpus(VectorSource(spam_ham_df$text))
+cleanCorpus <- tm_map(emailCorpus, removeNumbers)
+cleanCorpus <- tm_map(cleanCorpus, removePunctuation)
+cleanCorpus <- tm_map(cleanCorpus, removeWords, stopwords())
+cleanCorpus <- tm_map(cleanCorpus, stripWhitespace)
+```
+
+The Document Term Matrix is the mathematical maxtrix that describes the frequency of terms that occurs in a collection of documents.
+```{r}
+email_dtm <- DocumentTermMatrix(cleanCorpus)
+```
+
+##Word Cloud
+```{r}
+#spam
+spam_indices <- which(spam_ham_df$type == "spam")
+suppressWarnings(wordcloud(cleanCorpus[spam_indices],colors = brewer.pal(8,"Set2"), min.freq=40, random.order =FALSE))
+#ham
+ham_indices <- which(spam_ham_df$type == "ham")
+suppressWarnings(wordcloud(cleanCorpus[ham_indices], colors = brewer.pal(8,"Set2"), min.freq=40, random.order = FALSE))
+```
+
+##Spam and Ham Model
+
+The sample is 60% data traning and 40 % for prediction.
+```{r}
+sample_size <- floor(0.60 * nrow(spam_ham_df))
+```
+
+The seed was set to make partition reproductible.
+```{r}
+set.seed(123)
+train_ind <- sample(seq_len(nrow(spam_ham_df)), size = sample_size)
+
+train_spam_ham <- spam_ham_df[train_ind, ]
+test_spam_ham <- spam_ham_df[-train_ind, ]
+```
+
+A corpus was created for the training and test data in which numbers, punctuation, stopwords and white space was removed.
+```{r warning = FALSE, comment = FALSE, message = FALSE}
+train_email_corpus <- Corpus(VectorSource(train_spam_ham$text))
+test_email_corpus <- Corpus(VectorSource(test_spam_ham$text))
+
+train_clean_corpus <- tm_map(train_email_corpus ,removeNumbers)
+test_clean_corpus <- tm_map(test_email_corpus, removeNumbers)
+
+train_clean_corpus <- tm_map(train_clean_corpus, removePunctuation)
+test_clean_corpus <- tm_map(test_clean_corpus, removePunctuation)
+
+train_clean_corpus <- tm_map(train_clean_corpus, removeWords, stopwords())
+test_clean_corpus  <- tm_map(test_clean_corpus, removeWords, stopwords())
+
+train_clean_corpus<- tm_map(train_clean_corpus, stripWhitespace)
+test_clean_corpus<- tm_map(test_clean_corpus, stripWhitespace)
+
+train_email_dtm <- DocumentTermMatrix(train_clean_corpus)
+test_email_dtm <- DocumentTermMatrix(test_clean_corpus)
+```
+
+
+Count for data set is requried.
+```{r}
+spam<-subset(train_spam_ham,train_spam_ham$type == "spam")
+ham<-subset(train_spam_ham,train_spam_ham$type == "ham")
+
+convert_count <- function(x) {
+  y <- ifelse(x > 0, 1,0)
+  y <- factor(y, levels=c(0,1), labels=c("No", "Yes"))
+  y
+}
+
+train_sms <- apply(train_email_dtm, 2, convert_count)
+test_sms <- apply(test_email_dtm, 2, convert_count)
+```
+
+#Conclusion
+The naiveBayes function is used to fit Naive Bayes model in which predictors are assumed to be independent within each class label.This is used to determine the classification of email.
+```{r}
+classifier <- naiveBayes(train_sms, factor(train_spam_ham$type))
+
+test_pred <- predict(classifier, newdata=test_sms)
+
+table(test_pred, test_spam_ham$type)
+```
+

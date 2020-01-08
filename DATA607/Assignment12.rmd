@@ -1,0 +1,93 @@
+---
+title: "Graph Databases "
+date: "April 28, 2019"
+output: 
+  html_document:
+    theme: united
+    highlight: zenburn
+    toc: true
+    toc_float: true
+---
+
+#Overview {.tabset .tabset-fade}
+***
+Neo4j is a graph database management system developed by Neo4j, Inc. Described by its developers as an ACID-compliant transactional database with native graph storage and processing.Neo4j is implemented in Java and accessible from software written in other languages using the Cypher Query Language through a transactional HTTP endpoint, or through the binary "bolt" protocol.
+
+#Neo4j & Cypher Queries
+***
+
+##Loading Data
+Creating nodes for Actor
+`LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j/neo4j/2.3/manual/cypher/cypher-docs/src/docs/graphgists/import/persons.csv" AS csvLine CREATE (p:Person {id: toInt(csvLine.id), name: csvLine.name})`
+
+Creating node for Movie
+`LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j/neo4j/2.3/manual/cypher/cypher-docs/src/docs/graphgists/import/movies.csv" AS csvLine`
+
+Creating node for Role
+`LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j/neo4j/2.3/manual/cypher/cypher-docs/src/docs/graphgists/import/roles.csv" AS csvLine`
+
+##Index
+Creating index for the name property on the Country label to ensure the query runs as fast as it can.
+`CREATE INDEX ON :Country(name)`
+
+##Creating Relationships
+Creating relationships between the movie and the country. Since the relationship is a many to many relationship, one actor can participate in many movies, and one movie has many actors in it.
+`MERGE (country:Country {name: csvLine.country})CREATE (movie:Movie {id: toInt(csvLine.id), title: csvLine.title, year:toInt(csvLine.year)})CREATE (movie)-[:MADE_IN]->(country)`
+
+Creating relationships between the actor and the movies. 
+`USING PERIODIC COMMIT 500 MATCH (person:Person { id: toInt(csvLine.personId)}),(movie:Movie { id: toInt(csvLine.movieId)}) CREATE (person)-[:PLAYED { role: csvLine.role }]->(movie)`
+
+##Creating Constraint
+Create index of the id property on Person and Movie nodes. The id property is a temporary property used to look up the appropriate nodes for a relationship when importing the third file. By indexing the id property, node lookup (e.g. by MATCH) will be much faster. Since we expect the ids to be unique in each set, we'll create a unique constraint. Creating a unique constraint also creates a unique index (which is faster than a regular index).
+
+`CREATE CONSTRAINT ON (person:Person) ASSERT person.id IS UNIQUE`
+`CREATE CONSTRAINT ON (movie:Movie) ASSERT movie.id IS UNIQUE`
+
+##Using Periodic Commit
+Using this query builds up inordinate amounts of transaction state, and so needs to be periodically committed. In this case we also set the limit to 500 rows per commit.
+
+`LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j/neo4j/2.3/manual/cypher/cypher-docs/src/docs/graphgists/import/roles.csv" AS csvLine MATCH (person:Person { id: toInt(csvLine.personId)}),(movie:Movie { id: toInt(csvLine.movieId)}) CREATE (person)-[:PLAYED { role: csvLine.role }]->(movie)`
+
+##Dropping Constraints
+ID property was only necessary to import the relationships, we can drop the constraints and the id property from all Movie and Person nodes.
+
+`DROP CONSTRAINT ON (person:Person) ASSERT person.id IS UNIQUE`
+`DROP CONSTRAINT ON (movie:Movie) ASSERT movie.id IS UNIQUE`
+`MATCH (n) WHERE n:Person OR n:Movie REMOVE n.id`
+
+##Final Result
+Using the `MATCH (n) RRETURN (n)` cypher query, we are able to see the following output.
+![Neo4j Diagram](/Users/iramesa/Pictures/neo4jdiagram.png)
+
+#Relational database vs. NoSQL database
+***
+
+##SQL
+
+###Advantage
+Versatile and widely-used options for great complex queries. 
+Great support and resources available.
+Best suited for complex queries.
+
+###Disadvantage
+Data must follow the same structure and schema must be predefined.
+Not suited for hierachical data storage.
+
+##NoSQL
+
+###Advantage
+*Dynamic schema for unstructured data. 
+*Data is stored in many ways (Document-oriented, column-oriented, graph-based or organized as a KeyValue store). 
+*Can add fields as you go.
+*Suited for hierachical data storage.
+
+###Disadvantage
+*Limited support amd respources available.
+*Not good for complex queries.
+
+While NoSQL is a very astehetic graphic, I prefer the structure of an SQL database. I felt the resources for Neo4j to be very limited, however this could change in time. I was glad I had an opprtunity to create a database with Neo4j.
+
+#Sources
+https://neo4j.com/graphgist/importing-csv-files-with-cypher <br/>
+https://www.geeksforgeeks.org/difference-between-sql-and-nosql/ <br/>
+

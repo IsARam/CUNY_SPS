@@ -1,0 +1,98 @@
+---
+title: "Assignment 5"
+author: "Isabel Ramesar"
+date: "February 27, 2019"
+output:
+    rmdformats::readthedown:
+      self_contained: true
+      thumbnails: true
+      lightbox: true
+      gallery: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Create CSV
+```{r}
+csv <- rbind(c(NA, NA, "Los Angeles", "Phoenix", "San Diego", "San Francisco", "Seattle"),
+             c("ALASKA", "On Time", 497, 221, 212, 503, 1841),
+             c(NA, "Delayed", 62, 12, 20, 102, 305),
+             c("AM WEST", "On Time", 694, 4840, 383, 320, 201),
+             c(NA, "Delayed", 117, 415, 65, 129, 61))
+
+write.table(csv, file = "arrivaltimes.csv", sep = ",", col.names=F, row.names=F)
+```
+
+
+#Read CSV into R
+```{r}
+originalarrival<-read.csv("https://raw.githubusercontent.com/IsARam/DATA607/master/arrivaltimes.csv?_sm_au_=iVVSSF6Sk3kVrtvj")
+originalarrival
+```
+
+#Transformation Of Data {.tabset .tabset-fade}
+
+##Load Libraries
+```{r}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+```
+
+##Tidy Data
+```{r}
+arrival<- originalarrival %>%
+mutate(Airlines1 = NA., Airlines2=lag(NA.)) %>% 
+mutate(Airline = coalesce(Airlines1,Airlines2), Status = NA..1)  %>%
+gather("Destination", "Flights", 3:7) %>% 
+select(Airline:Flights) %>% 
+arrange(Airline, desc(Status), Destination); arrival
+```
+
+I used the following formulas:
+1. The `mutate` formula (dplyr) adds new variables and preserves existing. In the case of the above this formula was used to duplicate the first column.
+2. The `coalesce` (dplyr) formula finds the first non-missing value at each position.In the case of the above this was used to combine the first and second columns into one.
+3. The `gather` formuala (tidyr) takes multiple columns and collapses into key-value pairs, duplicating all other columns as needed.
+4. The `select` formula (dplyr) keeps only the variables you mention.
+5. The `arrange` formula (dplyr) sort a variable in descending order.
+
+#Analysis {.tabset .tabset-fade}
+
+
+##Filter Status
+```{r}
+FlightsDelayed <- arrival %>% group_by(Airline,Destination) %>% filter(Status == 'Delayed') %>%summarise(Delayed = sum(Flights))
+FlightsDelayed
+```
+
+##Calculate Total Flights
+```{r}
+TotalFlights <- arrival %>% group_by(Airline,Destination) %>% summarise(Total = sum(Flights))
+TotalFlights
+```
+
+##Combine and Mutate 
+```{r}
+DelaySummary<- cbind(FlightsDelayed, Total=TotalFlights$Total)
+DelaySummary<- DelaySummary %>% mutate(DelayPercentage = Delayed/Total)
+DelaySummary
+```
+
+##High Level Summary
+```{r}
+FlightsDelayedHL <- arrival %>% group_by(Airline) %>% filter(Status == 'Delayed') %>%summarise(Delayed = sum(Flights))
+TotalFlightsHL <- arrival %>% group_by(Airline) %>% summarise(Total = sum(Flights))
+DelaySummaryHL<-cbind(FlightsDelayedHL,Total=TotalFlightsHL$Total)
+DelaySummaryHL<- DelaySummaryHL %>% mutate(HLDelayPercentage = DelaySummaryHL$Delayed/DelaySummaryHL$Total)
+DelaySummaryHL
+```
+
+Alaska Airlines has a higher delay percentage over AM West however Alaska Airlines had fewer Total Flights.
+
+#Visuals
+```{r}
+ggplot(DelaySummary, aes(Destination, Delayed)) + geom_point(aes(color=Airline),size=8,alpha=1/2)
+```
+
