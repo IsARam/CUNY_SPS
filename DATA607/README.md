@@ -34,5 +34,7 @@ Working with Data in the Cloud; Hadoop and Spark
 
 Big Data Analytics
 
+[Final Project - Suicide Analysis](https://github.com/IsARam/CUNY_SPS/blob/master/DATA607/DATA%20607%20Final%20Project.Rmd)
+
 
 
