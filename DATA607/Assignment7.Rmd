@@ -1,6 +1,5 @@
 ---
 title: "Assignment 7 - Working with XML and JSON in R"
-author: "Isabel Ramesar"
 date: "March 17,2019"
 output:
   rmdformats::readthedown:
