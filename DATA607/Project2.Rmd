@@ -1,6 +1,5 @@
 ---
 title: "Project 2 - Preparing different datasets"
-author: "Isabel Ramesar"
 date: "March 10, 2019"
 output:
   rmdformats::readthedown:
