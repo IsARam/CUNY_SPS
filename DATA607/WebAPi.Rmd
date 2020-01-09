@@ -1,6 +1,5 @@
 ---
 title: "Untitled"
-author: "Isabel Ramesar"
 date: "March 26, 2019"
 output: html_document
 ---
