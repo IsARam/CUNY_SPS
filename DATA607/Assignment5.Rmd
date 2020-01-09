@@ -1,6 +1,5 @@
 ---
 title: "Assignment 5"
-author: "Isabel Ramesar"
 date: "February 27, 2019"
 output:
     rmdformats::readthedown:
