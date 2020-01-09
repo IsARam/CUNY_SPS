@@ -44,5 +44,5 @@ This course covered basic differential and integral calculus from the viewpoint 
 
 [Functions of Several Variables](https://github.com/isaram/CUNY_SPS/blob/master/DATA605/IRamesar_Assign15.Rmd)
 
-### Final
+## Final
 [All Topics](https://github.com/isaram/CUNY_SPS/blob/master/DATA605/IRamesar_Final.Rmd)
