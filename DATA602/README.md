@@ -28,5 +28,5 @@ pandas
 
 Machine Learning w/ Scikit-learn
 
-
+All assignments are in a [private repository](https://github.com/IsARam/DATA602Assignments) at the behest of the Profesor. 
 
