@@ -30,7 +30,7 @@ Scraping Web Pages
 
 [Graph Databases](http://rpubs.com/IsabelR/Project4)
 
-[Working with Data in the Cloud; Hadoop and Spark]
+Working with Data in the Cloud; Hadoop and Spark
 
 Big Data Analytics
 
