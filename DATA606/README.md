@@ -4,7 +4,7 @@ DATA 606 - Statistics and Probability for Data Analytics
 
 This course covered basic techniques in probability and statistics that are important in the field of data analytics. Discrete probability models, sampling from infinite and finite populations, statistical distributions, basic Bayesian statistics, and non-parametric statistical techniques for categorical data were covered in this course. Each of these statistical concepts were applied in a variety of real-world scenarios through the use of case studies and customized data sets.
 
-## Assignments and Labs
+## Assignments
 
 [Intro to Data](http://rpubs.com/IsabelR/Lab1)
 
@@ -22,6 +22,6 @@ This course covered basic techniques in probability and statistics that are impo
 
 [Multiple and Logistic Regression](http://rpubs.com/IsabelR/Lab8)
 
-## Final Project
+## Final
 
 [United States Birth Rates](http://rpubs.com/IsabelR/DATA606FinalProject)
