@@ -72,15 +72,10 @@ shinyUI(navbarPage(title = "Food & Color Additives",
                    
                    # ----------------------------------
                    #tab panel 4 - Glossary
-                   tabPanel("Glossary"#,
-                            #Glossary()
-                   ),
-                   
+                   tabPanel("Glossary", includeHTML("glossary.html")),
                    # ----------------------------------
                    #tab panel 5 - Video
-                   tabPanel("Video"#,
-                            #Video()
-                   ),
+                   tabPanel("Additive Index",includeHTML("additiveindex.html")),
                    
                    # ----------------------------------
                    # tab panel 4 - About
