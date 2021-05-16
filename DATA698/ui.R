@@ -66,21 +66,26 @@ shinyUI(navbarPage(title = "Food & Color Additives",
                    
                    # ----------------------------------
                    #tab panel 3 - Data
-                   tabPanel("Explore Data"#,
-                            #DataComparison()
+                   tabPanel("Explore Data",
+                            DT::dataTableOutput("data"),
+                            #includeHTML("scrollToTop.html")
                    ),
                    
                    # ----------------------------------
                    #tab panel 4 - Glossary
-                   tabPanel("Glossary", includeHTML("glossary.html")),
+                   tabPanel("Glossary", 
+                            includeHTML("glossary.html")
+                            ),
                    # ----------------------------------
                    #tab panel 5 - Video
-                   tabPanel("Additive Index",includeHTML("additiveindex.html")),
+                   tabPanel("Additive Index",
+                            includeHTML("additiveindex.html")
+                            ),
                    
                    # ----------------------------------
                    # tab panel 4 - About
-                   tabPanel("About",
-                            includeHTML("about.html"),
+                   tabPanel("",
+                            #includeHTML("about.html"),
                             shinyjs::useShinyjs(),
                             tags$head(
                                 tags$link(rel = "stylesheet", 
